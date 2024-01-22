@@ -1,13 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put,UseGuards  } from '@nestjs/common';
+import { AuthGuard } from '../auth/auth.guard';
+
 import { BlogsService } from './blogs.service';
 import { Blog } from './schemas/blogs.schema';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 
 @Controller('blogs')
+@UseGuards(AuthGuard)
+
 export class BlogsController {
     constructor(private blogsService:BlogsService){}
     @Get()
+    // @UseGuards(AuthGuard) 
     async getAllBlogs():Promise<Blog[]>{
         return this.blogsService.findAll()
     }

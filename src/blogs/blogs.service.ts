@@ -16,6 +16,7 @@ export class BlogsService {
     
       async create(contact: Blog): Promise<Blog> {
         const res = await this.blogsModel.create(contact);
+        console.log(res._id)
         return res;
       }
     
