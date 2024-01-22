@@ -6,18 +6,19 @@ import { BlogsModule } from './blogs/blogs.module';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { BlogsController } from './blogs/blogs.controller';
 
 @Module({
   imports:[ConfigModule.forRoot({
     envFilePath:'.env',
     isGlobal:true,
   }),
-  MongooseModule.forRoot(process.env.DBURI),
   BlogsModule, 
+  MongooseModule.forRoot(process.env.DBURI),
   AuthModule,
 ],
   
   controllers: [AppController],
-  providers: [AppService, BlogsService],
+  providers: [AppService],
 })
 export class AppModule {}
