@@ -10,28 +10,28 @@ export class BlogsService {
     ){}
 
     async findAll(): Promise<Blog[]> {
-        const contact = await this.blogsModel.find();
-        return contact;
+        const blog = await this.blogsModel.find();
+        return blog;
       }
     
-      async create(contact: Blog): Promise<Blog> {
-        const res = await this.blogsModel.create(contact);
+      async create(blog: Blog): Promise<Blog> {
+        const res = await this.blogsModel.create(blog);
         console.log(res._id)
         return res;
       }
     
       async findById(id: string): Promise<Blog> {
-        const contact = await this.blogsModel.findById(id);
+        const blog = await this.blogsModel.findById(id);
     
-        if (!contact) {
+        if (!blog) {
           throw new NotFoundException('Blog not found.');
         }
     
-        return contact;
+        return blog;
       }
     
-      async updateById(id: string, contact: Blog): Promise<Blog> {
-        return await this.blogsModel.findByIdAndUpdate(id, contact, {
+      async updateById(id: string, blog: Blog): Promise<Blog> {
+        return await this.blogsModel.findByIdAndUpdate(id, blog, {
           new: true,
           runValidators: true,
         });
