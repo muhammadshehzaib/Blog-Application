@@ -1,13 +1,15 @@
     import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-    import { ApiProperty } from '@nestjs/swagger';
-    import { ObjectId } from 'mongodb';
-    import { HydratedDocument } from 'mongoose';
-    import { Document, Mongoose, Schema as MongooseSchema } from 'mongoose';
-    import { BlogsCategories } from '../../category/schemas/category.schema';
+import { Document, Schema as MongooseSchema } from 'mongoose';
+import { BlogsCategories } from '../../category/schemas/category.schema';
 
 
-    export type BlogDocument = HydratedDocument<Blog>;
-
+    // export type BlogDocument = HydratedDocument<Blog>;
+    export type BlogDocument = Blog & Document;
+    export enum Status {
+        Approved = 'Approved',
+        Disapproved = 'Disapproved',
+        Pending = 'Pending',
+      }
     @Schema()
     export class Blog {
     @Prop({ required: true })
@@ -22,6 +24,9 @@
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'BlogsCategories',required:true })
     category: BlogsCategories;  
 
+
+    @Prop({ type: String, enum: Object.values(Status), default: Status.Pending })
+    status: Status;
     //   @Prop({ 
     //     type: ObjectId, ref: 'User',
     //    required: true })
