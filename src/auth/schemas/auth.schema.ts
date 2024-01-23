@@ -5,7 +5,7 @@ import { Blog } from 'src/blogs/schemas/blogs.schema';
 
 export type UserDocument = HydratedDocument<Auth>;
 
-export enum User {
+export enum Role {
     Admin="Admin",
     Reader="Reader",
     Writer="Writer"
@@ -24,7 +24,7 @@ export class Auth {
   password: string;
 
   @Prop({})
-  role: User;
+  role: Role;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' })
   blogId: [Blog]; 
