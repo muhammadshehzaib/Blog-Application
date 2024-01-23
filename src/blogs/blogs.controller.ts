@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put,UseGuards  } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { BlogsService } from './blogs.service';
-import { Blog } from './schemas/blogs.schema';
+import { Blog, Status } from './schemas/blogs.schema';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { Roles } from 'src/roles';
@@ -28,7 +28,6 @@ export class BlogsController {
     ):Promise<Blog>{
         return this.blogsService.create(blog)
     }
-
     @Get(':id') 
     @Roles(Role.Reader)
     async getBlogs(
@@ -38,7 +37,6 @@ export class BlogsController {
 
         return this.blogsService.findById(id)
     }
-
 
     @Put(':id')
     @Roles(Role.Writer)
@@ -51,6 +49,29 @@ export class BlogsController {
     ):Promise<Blog>{
         return this.blogsService.updateById(id,blog)
     }
+
+    @Post('approved/:id')
+    @Roles(Role.Admin)
+    @UseGuards(RolesGuard,AuthGuard)
+    async approvedBlog(
+        @Param('id')
+        id:string,
+        status:Status
+    ):Promise<Blog>{
+        return this.blogsService.findIdAndApproved(id,status)
+    }
+
+    @Post('disapproved/:id')
+    @Roles(Role.Admin)
+    @UseGuards(RolesGuard,AuthGuard)
+    async disApprovedBlog(
+        @Param('id')
+        id:string,
+        status:Status
+    ):Promise<Blog>{
+        return this.blogsService.findIdAndDisapproved(id,status)
+    }
+    
     @Delete(':id')
     @Roles(Role.Writer)
     @UseGuards(RolesGuard,AuthGuard)
