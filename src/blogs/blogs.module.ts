@@ -6,8 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
-  imports:[MongooseModule.forFeature([{name:'Blog',schema:BlogSchema}])],
-  providers: [BlogsService,JwtService],
-  controllers: [BlogsController]
+  imports: [MongooseModule.forFeature([{ name: 'Blog', schema: BlogSchema }])],
+  providers: [BlogsService, JwtService],
+  controllers: [BlogsController],
 })
 export class BlogsModule {}
