@@ -1,23 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger"
+import { Role } from "../schemas/auth.schema"
 
 export class CreateUserDto{
-    @ApiProperty({
-        description:"Username",
-        example:"Shehzaib",
-    })
+  
     readonly username:string
-    
-    @ApiProperty({
-        description:"email",
-        example:"shehzaib001@gmail.com",
-    })
     readonly email:string
-
-    @ApiProperty({
-        description:"password",
-        example:"shehzaib001",
-    })
     readonly password:string
-
+    readonly blogId:Array<string>
+    readonly role:Role
 }
 
