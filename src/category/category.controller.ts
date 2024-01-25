@@ -16,20 +16,19 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Roles } from 'src/roles';
 import { RolesGuard } from 'src/role.guard';
 import { Role } from 'src/auth/schemas/auth.schema';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('blogscategories')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}
   @Get()
-  @Roles(Role.Reader)
-  @UseGuards(RolesGuard)
   async getAllCategories(): Promise<BlogsCategories[]> {
     return this.categoryService.findAll();
   }
 
   @Post()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
-  // @UseGuards(RolesGuard, AuthGuard)
   async createBlogs(
     @Body()
     Category: CreateCategoryDto,
@@ -38,7 +37,6 @@ export class CategoryController {
   }
 
   @Get(':id')
-  @Roles(Role.Reader)
   async getBlogs(
     @Param('id')
     id: string,
@@ -48,7 +46,7 @@ export class CategoryController {
 
   @Put(':id')
   @Roles(Role.Admin)
-  // @UseGuards(RolesGuard,AuthGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   async updateBlogs(
     @Param('id')
     id: string,
@@ -59,7 +57,7 @@ export class CategoryController {
   }
   @Delete(':id')
   @Roles(Role.Admin)
-  // @UseGuards(RolesGuard,AuthGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   async deleteBlogs(
     @Param('id')
     id: string,
