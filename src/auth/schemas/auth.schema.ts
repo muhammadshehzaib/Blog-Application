@@ -6,28 +6,31 @@ import { Blog } from 'src/blogs/schemas/blogs.schema';
 export type UserDocument = HydratedDocument<Auth>;
 
 export enum Role {
-    Admin="Admin",
-    Reader="Reader",
-    Writer="Writer"
+  Admin = 'Admin',
+  Reader = 'Reader',
+  Writer = 'Writer',
 }
 
 @Schema()
 export class Auth {
-
-  @Prop({})
+  @Prop({
+    required: true,
+    message: 'Username is required and it should be unique',
+    unique: true,
+  })
   username: string;
-    
-  @Prop({})
+
+  @Prop({ required: true, message: 'Email is required' })
   email: string;
-  
-  @Prop({})
+
+  @Prop({ required: true, message: 'Password is required' })
   password: string;
 
-  @Prop({})
+  @Prop({ required: true, message: 'Role is required' })
   role: Role;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' })
-  blogId: [Blog]; 
+  // @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' })
+  // blogId: [Blog];
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);
