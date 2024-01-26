@@ -71,16 +71,31 @@ export class BlogsController {
   async updateBlogs(
     @Param('id')
     id: string,
-    @Body() // @Req()
-    // req: any,
+    @Req()
+    req: any,
+    @Body()
     blog: UpdateBlogDto,
   ): Promise<Blog> {
-    // console.log(req);
+    const userId = req.user._id.toString();
+    // console.log(userId);
 
-    return this.blogsService.updateById(id, blog);
+    return this.blogsService.updateById(id, blog, userId);
+  }
+  @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
+  async deleteBlogs(
+    @Req()
+    req: any,
+    @Param('id')
+    id: string,
+  ): Promise<Blog> {
+    const userId = req.user._id.toString();
+    // console.log(userId);
+
+    return this.blogsService.deleteById(id, userId);
   }
 
-  @Post('approved/:id')
+  @Put('approved/:id')
   @UseGuards(AuthGuard('jwt'))
   @Roles(Role.Admin)
   async approvedBlog(
@@ -91,7 +106,7 @@ export class BlogsController {
     return this.blogsService.findIdAndApproved(id, status);
   }
 
-  @Post('disapproved/:id')
+  @Put('disapproved/:id')
   @UseGuards(AuthGuard('jwt'))
   async disApprovedBlog(
     @Param('id')
@@ -99,14 +114,5 @@ export class BlogsController {
     status: Status,
   ): Promise<Blog> {
     return this.blogsService.findIdAndDisapproved(id, status);
-  }
-
-  @Delete(':id')
-  @UseGuards(AuthGuard('jwt'))
-  async deleteBlogs(
-    @Param('id')
-    id: string,
-  ): Promise<Blog> {
-    return this.blogsService.deleteById(id);
   }
 }

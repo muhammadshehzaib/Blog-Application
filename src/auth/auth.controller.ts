@@ -12,14 +12,9 @@ export class AuthController {
   @Post('login')
   async login(@Request() req): Promise<any> {
     console.log('This is req', req);
-    const user = req.user;
-    console.log('This is user', user);
-
+    const user = req.user.id;
     const token = await this.authService.login(user);
-
-    console.log('This is token', token);
-
-    return { token };
+    return { token, user };
   }
 
   @Post('register')
