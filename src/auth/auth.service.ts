@@ -20,17 +20,21 @@ export class AuthService {
     return null;
   }
 
-  async login(user: LoginUserDto): Promise<{ accessToken: string }> {
+  async login(
+    user: LoginUserDto,
+  ): Promise<{ accessToken: string; user: Object }> {
     const userId = await this.authModel.findOne({ username: user.username });
+    console.log('This is userId ' + userId._id);
 
     if (!userId) {
       throw new NotFoundException('user NOT FOUND');
     }
-    console.log(userId);
+    // console.log(userId);
     const payload = { sub: userId._id };
     // console.log('Shehzaib ' + );
     return {
       accessToken: await this.jwtService.signAsync(payload),
+      user: userId._id,
     };
   }
 
