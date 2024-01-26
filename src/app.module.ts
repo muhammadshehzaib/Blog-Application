@@ -10,18 +10,21 @@ import { BlogsController } from './blogs/blogs.controller';
 import { CategoryController } from './category/category.controller';
 import { CategoryService } from './category/category.service';
 import { CategoryModule } from './category/category.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
-  imports:[ConfigModule.forRoot({
-    envFilePath:'.env',
-    isGlobal:true,
-  }),
-  BlogsModule, 
-  CategoryModule,
-  MongooseModule.forRoot(process.env.DBURI),
-  AuthModule,
-],
-  
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
+    BlogsModule,
+    CategoryModule,
+    MongooseModule.forRoot(process.env.DBURI),
+    AuthModule,
+    CommentsModule,
+  ],
+
   controllers: [AppController],
   providers: [AppService],
 })
