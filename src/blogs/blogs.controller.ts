@@ -77,8 +77,6 @@ export class BlogsController {
     blog: UpdateBlogDto,
   ): Promise<Blog> {
     const userId = req.user._id.toString();
-    // console.log(userId);
-
     return this.blogsService.updateById(id, blog, userId);
   }
   @Delete(':id')
