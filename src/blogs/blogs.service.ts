@@ -14,7 +14,10 @@ export class BlogsService {
   ) {}
 
   async findAll(): Promise<Blog[]> {
-    const blog = await this.blogModel.find().populate('category');
+    const blog = await this.blogModel
+      .find()
+      .populate('category')
+      .populate('comments');
     return blog;
   }
 
@@ -24,7 +27,10 @@ export class BlogsService {
   }
 
   async findById(id: string): Promise<Blog> {
-    const blog = await this.blogModel.findById(id);
+    const blog = await this.blogModel
+      .findById(id)
+      .populate('category')
+      .populate('comments');
 
     if (!blog) {
       throw new NotFoundException('Blog not found.');
@@ -34,7 +40,11 @@ export class BlogsService {
   }
 
   async find(blog: CreateBlogDto): Promise<Blog[]> {
-    const res = await this.blogModel.find(blog).populate('category');
+    const res = await this.blogModel
+      .find(blog)
+      .populate('category')
+      .populate('comments');
+
     console.log(res);
 
     return res;
