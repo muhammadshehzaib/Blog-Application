@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { BlogsCategories } from '../../category/schemas/category.schema';
 import { Auth } from 'src/auth/schemas/auth.schema';
+import { Comments } from 'src/comments/schemas/comments.schema';
 
 // export type BlogDocument = HydratedDocument<Blog>;
 export type BlogDocument = Blog & Document;
@@ -33,6 +34,9 @@ export class Blog {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Auth' })
   userId: Auth;
+
+  @Prop([{ type: MongooseSchema.Types.ObjectId, ref: 'Comments' }])
+  comments: [Comments];
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);
