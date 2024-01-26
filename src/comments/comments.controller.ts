@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/role.guard';
@@ -7,13 +16,11 @@ import { Role } from 'src/auth/schemas/auth.schema';
 import { CreateCommentsDto } from './dto/create-comment.dto';
 import { Comments, CommentsDocument } from './schemas/comments.schema';
 import { BlogsService } from 'src/blogs/blogs.service';
+import { UpdateCommentsDto } from './dto/update-comment.dto';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(
-    private commentsService: CommentsService,
-    private blogsService: BlogsService,
-  ) {}
+  constructor(private commentsService: CommentsService) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -26,5 +33,24 @@ export class CommentsController {
     const userId = req.user.id;
     const blogId = req.body.blogId;
     return this.commentsService.create({ ...comments, userId: userId, blogId });
+  }
+  @Get()
+  async getAllomments(): Promise<CommentsDocument[]> {
+    return this.commentsService.findAll();
+  }
+  @Put(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Writer)
+  async updateComments(
+    @Param('id')
+    id: string,
+    @Req()
+    req: any,
+    @Body()
+    comments: UpdateCommentsDto,
+  ): Promise<CommentsDocument> {
+    const userId = req.user.id.toString();
+
+    return this.commentsService.updateById(id, comments, userId);
   }
 }
