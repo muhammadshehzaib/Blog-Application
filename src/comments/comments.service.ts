@@ -14,11 +14,8 @@ export class CommentsService {
     private blogModel: Model<BlogDocument>,
   ) {}
   async create(comment: CreateCommentsDto): Promise<CommentsDocument> {
-    // console.log(comment.blogId);
-
     const newComment = await this.commentModel.create(comment);
     const blog = await this.blogModel.findById(comment.blogId);
-    // console.log(blog);
     blog.comments.push(newComment._id);
     blog.save();
     return newComment;
