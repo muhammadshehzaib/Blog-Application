@@ -17,7 +17,8 @@ export class BlogsService {
     const blog = await this.blogModel
       .find()
       .populate('category')
-      .populate('comments');
+      .populate('comments')
+      .populate('reactions');
     return blog;
   }
 
@@ -30,7 +31,8 @@ export class BlogsService {
     const blog = await this.blogModel
       .findById(id)
       .populate('category')
-      .populate('comments');
+      .populate('comments')
+      .populate('reactions');
 
     if (!blog) {
       throw new NotFoundException('Blog not found.');
@@ -43,7 +45,8 @@ export class BlogsService {
     const res = await this.blogModel
       .find(blog)
       .populate('category')
-      .populate('comments');
+      .populate('comments')
+      .populate('reactions');
 
     console.log(res);
 
