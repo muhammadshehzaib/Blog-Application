@@ -20,7 +20,6 @@ export class ReactionsService {
     if (reaction.userId.toString() === create_reaction.userId.toString()) {
       reaction.reactions.push(create_reaction._id);
       reaction.save();
-
       return create_reaction;
     }
 
