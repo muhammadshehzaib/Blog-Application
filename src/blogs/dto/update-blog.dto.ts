@@ -2,6 +2,7 @@ import { Auth } from 'src/auth/schemas/auth.schema';
 import { BlogsCategories } from '../../category/schemas/category.schema';
 import { Status } from '../schemas/blogs.schema';
 import { Comments } from 'src/comments/schemas/comments.schema';
+import { Reaction } from 'src/reactions/schemas/reaction.schema';
 
 export class UpdateBlogDto {
   readonly title: string;
@@ -11,5 +12,7 @@ export class UpdateBlogDto {
   readonly status: Status;
   readonly userId: Auth;
   readonly comments: Array<Comments>;
+  readonly reactions: Array<Reaction>;
+
   // readonly comments: Comments;
 }
