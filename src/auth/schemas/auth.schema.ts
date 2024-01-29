@@ -20,13 +20,13 @@ export class Auth {
   })
   username: string;
 
-  @Prop({ required: true, message: 'Email is required' })
+  @Prop({ required: false, message: 'Email is required' })
   email: string;
 
   @Prop({ required: true, message: 'Password is required' })
   password: string;
 
-  @Prop({ required: true, message: 'Role is required' })
+  @Prop({ required: false })
   role: Role;
 
   // @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' })
