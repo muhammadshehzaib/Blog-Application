@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 // import { AuthGuard } from '../auth/auth.guard';
@@ -18,10 +19,15 @@ import { Roles } from 'src/roles';
 import { RolesGuard } from 'src/role.guard';
 import { Auth, Role } from 'src/auth/schemas/auth.schema';
 import { AuthGuard } from '@nestjs/passport';
-
+import { Request, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 @Controller('blogs')
 export class BlogsController {
-  constructor(private blogsService: BlogsService) {}
+  constructor(
+    private blogsService: BlogsService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   @Get('admin')
   @UseGuards(AuthGuard('jwt'))
@@ -35,15 +41,28 @@ export class BlogsController {
   }
 
   @Post()
+  @UseInterceptors(FileInterceptor('file'))
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Writer)
   async createBlogs(
     @Req() req: any,
     @Body()
     blog: CreateBlogDto,
+    @UploadedFile() file,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<Blog> {
-    const userId = req.user.id;
-    return this.blogsService.create({ ...blog, userId: userId });
+    let myfile: Express.Multer.File;
+    if (file) {
+      const userId = req.user.id;
+      myfile = file.buffer;
+      const image = await this.cloudinary.uploadImage(myfile);
+      const secure_url = image.secure_url;
+      return this.blogsService.create({
+        ...blog,
+        userId: userId,
+        image: secure_url,
+      });
+    }
   }
 
   @Get('userblogs')
@@ -115,4 +134,12 @@ export class BlogsController {
   ): Promise<Blog> {
     return this.blogsService.findIdAndDisapproved(id, status);
   }
+  // @Post()
+  // @UseInterceptors(FileInterceptor('file'))
+  // async SetImageCloudinary(@UploadedFile() file): Promise<any> {
+  //   const myfile = file.buffer;
+  //   console.log(myfile);
+
+  //   return this.blogsService.uploadImageToCloudinary(myfile);
+  // }
 }
