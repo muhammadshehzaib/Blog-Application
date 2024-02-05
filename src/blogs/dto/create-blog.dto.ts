@@ -8,7 +8,9 @@ export class CreateBlogDto {
   readonly title: string;
   readonly content: string;
   readonly createdAt: Date;
+  readonly image: string;
   readonly category: BlogsCategories;
+
   readonly status: Status;
   readonly userId: Auth;
   readonly comments: Array<Comments>;

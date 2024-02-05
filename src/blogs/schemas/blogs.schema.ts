@@ -23,6 +23,9 @@ export class Blog {
   @Prop({ default: Date.now })
   createdAt: Date;
 
+  @Prop({ required: true })
+  image: string;
+
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'BlogsCategories',
