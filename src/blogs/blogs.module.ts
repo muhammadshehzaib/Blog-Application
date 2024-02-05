@@ -4,10 +4,15 @@ import { BlogsController } from './blogs.controller';
 import { BlogSchema } from './schemas/blogs.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
-
+import { Cloudinary } from 'cloudinary-core';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'Blog', schema: BlogSchema }])],
-  providers: [BlogsService, JwtService],
+  imports: [
+    MongooseModule.forFeature([{ name: 'Blog', schema: BlogSchema }]),
+    CloudinaryModule,
+  ],
+  providers: [BlogsService, JwtService, Cloudinary, CloudinaryService],
   controllers: [BlogsController],
 })
 export class BlogsModule {}

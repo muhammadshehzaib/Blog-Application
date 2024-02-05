@@ -6,6 +6,9 @@ import { BlogSchema } from 'src/blogs/schemas/blogs.schema';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
 import { CommentsSchema } from './schemas/comments.schema';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { Cloudinary } from 'cloudinary-core';
 
 @Module({
   imports: [
@@ -14,6 +17,6 @@ import { CommentsSchema } from './schemas/comments.schema';
     BlogsModule,
   ],
   controllers: [CommentsController],
-  providers: [CommentsService, BlogsService],
+  providers: [CommentsService, BlogsService, Cloudinary, CloudinaryService],
 })
 export class CommentsModule {}
