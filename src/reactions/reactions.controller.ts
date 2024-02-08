@@ -27,6 +27,9 @@ export class ReactionsController {
       userId,
       blogId,
     });
+
+    console.log(reaction);
+
     return reaction;
   }
 }

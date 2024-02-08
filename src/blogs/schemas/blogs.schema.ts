@@ -12,6 +12,13 @@ export enum Status {
   Disapproved = 'Disapproved',
   Pending = 'Pending',
 }
+
+enum BlogCategory {
+  PROGRAMMING = 'Programming',
+  GAMMING = 'Gaming',
+  BLOCKCHAIN = 'Blockchain',
+}
+
 @Schema()
 export class Blog {
   @Prop({ required: true })
@@ -27,11 +34,11 @@ export class Blog {
   image: string;
 
   @Prop({
-    type: MongooseSchema.Types.ObjectId,
-    ref: 'BlogsCategories',
+    type: String,
+    enum: Object.values(BlogCategory),
     required: true,
   })
-  category: BlogsCategories;
+  category: BlogCategory;
 
   @Prop({ type: String, enum: Object.values(Status), default: Status.Pending })
   status: Status;

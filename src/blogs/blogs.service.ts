@@ -33,7 +33,7 @@ export class BlogsService {
     return res;
   }
 
-  async findById(id: string): Promise<Blog> {
+  async findById(id: string): Promise<any> {
     const blog = await this.blogModel
       .findById(id)
       .populate('category')
@@ -60,7 +60,6 @@ export class BlogsService {
   }
 
   async updateById(id: string, blog: UpdateBlogDto, req): Promise<Blog> {
-    // console.log(blog);
     const blogId = await this.blogModel.findById(id);
     const userId = blogId.userId.toString();
     if (userId === req) {

@@ -51,17 +51,22 @@ export class BlogsController {
     @UploadedFile() file,
     @Res({ passthrough: true }) response: Response,
   ): Promise<Blog> {
-    let myfile: Express.Multer.File;
-    if (file) {
-      const userId = req.user.id;
-      myfile = file.buffer;
-      const image = await this.cloudinary.uploadImage(myfile);
-      const secure_url = image.secure_url;
-      return this.blogsService.create({
-        ...blog,
-        userId: userId,
-        image: secure_url,
-      });
+    try {
+      let myfile: Express.Multer.File;
+      if (file) {
+        console.log('ali backend');
+        const userId = req.user.id;
+        myfile = file.buffer;
+        const image = await this.cloudinary.uploadImage(myfile);
+        const secure_url = image.secure_url;
+        return this.blogsService.create({
+          ...blog,
+          userId: userId,
+          image: secure_url,
+        });
+      }
+    } catch (error) {
+      console.error('Blog cannot be created from backend' + error);
     }
   }
 
@@ -134,12 +139,4 @@ export class BlogsController {
   ): Promise<Blog> {
     return this.blogsService.findIdAndDisapproved(id, status);
   }
-  // @Post()
-  // @UseInterceptors(FileInterceptor('file'))
-  // async SetImageCloudinary(@UploadedFile() file): Promise<any> {
-  //   const myfile = file.buffer;
-  //   console.log(myfile);
-
-  //   return this.blogsService.uploadImageToCloudinary(myfile);
-  // }
 }
