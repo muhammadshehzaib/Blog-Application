@@ -9,10 +9,14 @@ import { CommentsSchema } from './schemas/comments.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { Cloudinary } from 'cloudinary-core';
+import { CategorySchema } from 'src/category/schemas/category.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Comments', schema: CommentsSchema }]),
+    MongooseModule.forFeature([
+      { name: 'BlogsCategories', schema: CategorySchema },
+    ]),
     MongooseModule.forFeature([{ name: 'Blog', schema: BlogSchema }]),
     BlogsModule,
   ],
