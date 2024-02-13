@@ -5,7 +5,7 @@ import { IsEnum } from 'class-validator';
 
 export class CreateReactionDto {
   @IsEnum(Reaction, { message: 'Please enter correct reaction' })
-  readonly reactions: Reaction;
+  readonly reactions: Array<string>;
   readonly userId: Array<Auth>;
   readonly createdAt: Date;
   readonly blogId: Blog;

@@ -18,7 +18,7 @@ export class ReactionsController {
     @Req() req: any,
     @Body()
     reactions: CreateReactionDto,
-  ): Promise<ReactionDocument> {
+  ): Promise<any> {
     const userId = req.user.id;
     const blogId = req.body.blogId;
 
@@ -28,7 +28,7 @@ export class ReactionsController {
       blogId,
     });
 
-    console.log(reaction);
+    // console.log(reaction);
 
     return reaction;
   }

@@ -33,7 +33,7 @@ export class CategoryController {
     @Body()
     Category: CreateCategoryDto,
   ): Promise<BlogsCategories> {
-    return this.categoryService.create(Category);
+    return this.categoryService.create(Category.category);
   }
 
   @Get(':id')
@@ -53,7 +53,7 @@ export class CategoryController {
     @Body()
     category: UpdateCategoryDto,
   ): Promise<BlogsCategories> {
-    return this.categoryService.updateById(id, category);
+    return this.categoryService.updateById(id, category.category);
   }
   @Delete(':id')
   @Roles(Role.Admin)

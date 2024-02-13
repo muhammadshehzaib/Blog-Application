@@ -3,8 +3,10 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class BlogsCategories {
-  @Prop({ required: true })
-  name: string;
+  @Prop({
+    required: true,
+  })
+  category: string;
 
   @Prop({ default: Date.now })
   createdAt: Date;
