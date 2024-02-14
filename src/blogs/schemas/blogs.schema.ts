@@ -3,7 +3,7 @@ import { Document, Schema as MongooseSchema } from 'mongoose';
 import { BlogsCategories } from '../../category/schemas/category.schema';
 import { Auth } from 'src/auth/schemas/auth.schema';
 import { Comments } from 'src/comments/schemas/comments.schema';
-import { Reaction } from 'src/reactions/schemas/reaction.schema';
+import { Reaction, Reactions } from 'src/reactions/schemas/reaction.schema';
 
 // export type BlogDocument = HydratedDocument<Blog>;
 export type BlogDocument = Blog & Document;
@@ -12,6 +12,7 @@ export enum Status {
   Disapproved = 'Disapproved',
   Pending = 'Pending',
 }
+
 @Schema()
 export class Blog {
   @Prop({ required: true })
@@ -28,8 +29,8 @@ export class Blog {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: 'BlogsCategories',
     required: true,
+    ref: 'BlogsCategories',
   })
   category: BlogsCategories;
 
@@ -43,7 +44,7 @@ export class Blog {
   comments: [Comments];
 
   @Prop([{ type: MongooseSchema.Types.ObjectId, ref: 'Reaction' }])
-  reactions: [Reaction];
+  reactions: Reactions[];
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

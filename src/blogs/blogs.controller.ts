@@ -22,6 +22,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import mongoose from 'mongoose';
+import { CategorySchema } from 'src/category/schemas/category.schema';
+import { CategoryService } from 'src/category/category.service';
+import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
 @Controller('blogs')
 export class BlogsController {
   constructor(
@@ -36,7 +40,7 @@ export class BlogsController {
   }
 
   @Get()
-  async getAllBlogs(): Promise<Blog[]> {
+  async getAllBlogs(): Promise<any> {
     return this.blogsService.findAll();
   }
 
@@ -51,17 +55,22 @@ export class BlogsController {
     @UploadedFile() file,
     @Res({ passthrough: true }) response: Response,
   ): Promise<Blog> {
-    let myfile: Express.Multer.File;
-    if (file) {
-      const userId = req.user.id;
-      myfile = file.buffer;
-      const image = await this.cloudinary.uploadImage(myfile);
-      const secure_url = image.secure_url;
-      return this.blogsService.create({
-        ...blog,
-        userId: userId,
-        image: secure_url,
-      });
+    try {
+      let myfile: Express.Multer.File;
+      if (file) {
+        const userId = req.user.id;
+        myfile = file.buffer;
+        const image = await this.cloudinary.uploadImage(myfile);
+        const secure_url = image.secure_url;
+
+        return this.blogsService.create({
+          ...blog,
+          image: secure_url,
+          userId,
+        });
+      }
+    } catch (error) {
+      console.error('Blog cannot be created from backend' + error);
     }
   }
 
@@ -107,8 +116,6 @@ export class BlogsController {
     id: string,
   ): Promise<Blog> {
     const userId = req.user._id.toString();
-    // console.log(userId);
-
     return this.blogsService.deleteById(id, userId);
   }
 
@@ -132,12 +139,4 @@ export class BlogsController {
   ): Promise<Blog> {
     return this.blogsService.findIdAndDisapproved(id, status);
   }
-  // @Post()
-  // @UseInterceptors(FileInterceptor('file'))
-  // async SetImageCloudinary(@UploadedFile() file): Promise<any> {
-  //   const myfile = file.buffer;
-  //   console.log(myfile);
-
-  //   return this.blogsService.uploadImageToCloudinary(myfile);
-  // }
 }

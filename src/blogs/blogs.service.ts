@@ -4,18 +4,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Blog, BlogDocument, Status } from './schemas/blogs.schema';
-import { Auth } from 'src/auth/schemas/auth.schema';
+import mongoose, { Model } from 'mongoose';
+import { BlogsCategories } from 'src/category/schemas/category.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { Blog, BlogDocument, Status } from './schemas/blogs.schema';
 @Injectable()
 export class BlogsService {
   constructor(
     @InjectModel(Blog.name)
     private blogModel // private blogsModel:mongoose.Model<Blog>,
     : Model<BlogDocument>,
+    @InjectModel(BlogsCategories.name)
+    private categoryModel: Model<BlogsCategories>,
     private cloudinary: CloudinaryService,
   ) {}
 
@@ -29,11 +31,19 @@ export class BlogsService {
   }
 
   async create(blog: CreateBlogDto): Promise<Blog> {
+    const isValid = mongoose.isValidObjectId(blog.category);
+    if (!isValid) {
+      throw new BadRequestException('Incorrect Object Id');
+    }
+    const category = await this.categoryModel.findById(blog.category);
+    if (!category) {
+      throw new NotFoundException('Not found category');
+    }
     const res = await this.blogModel.create(blog);
     return res;
   }
 
-  async findById(id: string): Promise<Blog> {
+  async findById(id: string): Promise<any> {
     const blog = await this.blogModel
       .findById(id)
       .populate('category')
@@ -60,7 +70,6 @@ export class BlogsService {
   }
 
   async updateById(id: string, blog: UpdateBlogDto, req): Promise<Blog> {
-    // console.log(blog);
     const blogId = await this.blogModel.findById(id);
     const userId = blogId.userId.toString();
     if (userId === req) {
@@ -102,8 +111,4 @@ export class BlogsService {
     };
     return await this.blogModel.findByIdAndUpdate(filterQuery, updateQuery);
   }
-
-  // async uploadImageToCloudinary(file: Express.Multer.File) {
-
-  // }
 }

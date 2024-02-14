@@ -13,16 +13,76 @@ export class ReactionsService {
     @InjectModel(Blog.name)
     private blogModel: Model<BlogDocument>,
   ) {}
-  async create(reactions: CreateReactionDto): Promise<ReactionDocument> {
-    const create_reaction = await this.reactionsModel.create(reactions);
-    const reaction = await this.blogModel.findById(create_reaction.blogId);
+  async create(reactions: CreateReactionDto, id: string): Promise<any> {
+    const reaction_avaliable = await this.reactionsModel.findOne(
+      reactions.userId,
+    );
 
-    if (reaction.userId.toString() === create_reaction.userId.toString()) {
-      reaction.reactions.push(create_reaction._id);
-      reaction.save();
+    console.log('this is reaction avalaiable : ', reaction_avaliable);
+    console.log('This is userId in id : ' + reactions.blogId);
+
+    if (reaction_avaliable === null) {
+      const create_reaction = await this.reactionsModel.create(reactions);
+      console.log('this is create reaction : ', create_reaction);
+
+      const blog = await this.blogModel.findById(create_reaction.blogId);
+      console.log('This is blog in if statement', blog);
+      blog?.reactions.push(create_reaction._id);
+
+      blog?.save();
+
+      console.log('reaction created successfully');
       return create_reaction;
     }
+    if (
+      reaction_avaliable.reactions.toString() === reactions.reactions.toString()
+    ) {
+      console.log('this is 2nd if');
+      console.log(
+        'reaction_avaliable[0]._id',
+        reaction_avaliable.reactions.toString(),
+      );
+      console.log(
+        'reactions.reactions.toString() : ' + reactions.reactions.toString(),
+      );
 
-    throw new NotFoundException();
+      const deleteReaction = await this.reactionsModel.findByIdAndDelete(
+        reaction_avaliable._id,
+      );
+      console.log('deleteReaction : ' + deleteReaction);
+
+      const blog = await this.blogModel.findById(reactions.blogId);
+
+      console.log('This is blog : in the 2nd if ' + blog);
+      console.log('blog.reaction : ' + blog.reactions);
+
+      blog.reactions = blog.reactions.filter((id) => {
+        console.log('This is id in filter : ', id, deleteReaction._id);
+
+        id.toString() !== deleteReaction._id.toString();
+      });
+      console.log('blog.reaction after filter method: ' + blog.reactions);
+      await blog.save();
+      console.log('reaction deleted successfully');
+      return deleteReaction;
+    }
+
+    console.log('entering in the update statement');
+    console.log(
+      'reaction_avaliable.reactions : ' + reaction_avaliable.reactions,
+    );
+    const updateReaction = await this.reactionsModel.findOneAndUpdate(
+      { _id: reaction_avaliable._id },
+      { reactions: reactions.reactions }, // Specify the field to update
+      { new: true },
+    );
+    console.log('Please reactions.reactions : ', reactions.reactions);
+    console.log(
+      'reaction_avaliable.reactions : ' + reaction_avaliable.reactions,
+    );
+
+    console.log('updateReaction : ' + updateReaction);
+
+    return updateReaction;
   }
 }

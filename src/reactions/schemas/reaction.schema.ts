@@ -24,13 +24,13 @@ export type ReactionDocuments = HydratedDocument<Reaction>;
 
 @Schema()
 export class Reaction {
-  @Prop({ type: String })
-  reactions: Reactions;
+  @Prop([{ type: String, enum: Object.values(Reactions) }])
+  reactions: Reactions[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Auth' }) //User
   userId: Auth;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' }) //User
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' }) //Blog
   blogId: Blog;
 
   @Prop({ default: Date.now })
