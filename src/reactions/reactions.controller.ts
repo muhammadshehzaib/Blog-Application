@@ -22,11 +22,13 @@ export class ReactionsController {
     const userId = req.user.id;
     const blogId = req.body.blogId;
 
-    const reaction = await this.reactionsService.create({
-      ...reactions,
+    const reaction = await this.reactionsService.create(
+      {
+        ...reactions,
+        blogId,
+      },
       userId,
-      blogId,
-    });
+    );
 
     // console.log(reaction);
 
