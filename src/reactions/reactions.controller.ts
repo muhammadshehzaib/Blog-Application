@@ -18,15 +18,20 @@ export class ReactionsController {
     @Req() req: any,
     @Body()
     reactions: CreateReactionDto,
-  ): Promise<ReactionDocument> {
+  ): Promise<any> {
     const userId = req.user.id;
     const blogId = req.body.blogId;
 
-    const reaction = await this.reactionsService.create({
-      ...reactions,
+    const reaction = await this.reactionsService.create(
+      {
+        ...reactions,
+        blogId,
+      },
       userId,
-      blogId,
-    });
+    );
+
+    // console.log(reaction);
+
     return reaction;
   }
 }

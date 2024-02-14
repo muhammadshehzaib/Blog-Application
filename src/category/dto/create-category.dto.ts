@@ -1,4 +1,6 @@
-export class CreateCategoryDto{
-    readonly name:string
-    readonly createdAt:Date
+import { BlogsCategories } from '../schemas/category.schema';
+
+export class CreateCategoryDto {
+  readonly category: BlogsCategories;
+  readonly createdAt: Date;
 }

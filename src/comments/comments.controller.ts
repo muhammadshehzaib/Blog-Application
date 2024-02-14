@@ -31,8 +31,10 @@ export class CommentsController {
     comments: CreateCommentsDto,
   ): Promise<CommentsDocument> {
     const userId = req.user.id;
-    const blogId = req.body.blogId;
-    return this.commentsService.create({ ...comments, userId: userId, blogId });
+    const blog = req.body.blog;
+    console.log(blog);
+
+    return this.commentsService.create({ ...comments, userId: userId, blog });
   }
   @Get()
   async getAllomments(): Promise<CommentsDocument[]> {
