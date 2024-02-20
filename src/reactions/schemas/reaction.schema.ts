@@ -9,8 +9,8 @@ import { Auth } from 'src/auth/schemas/auth.schema';
 import { Blog } from 'src/blogs/schemas/blogs.schema';
 
 export enum Reactions {
-  Happy = 'happy',
-  Sad = 'sad',
+  happy = 'happy',
+  sad = 'sad',
   // Angry = '😡',
   // Love = '❤️',
   // Surprised = '😲',

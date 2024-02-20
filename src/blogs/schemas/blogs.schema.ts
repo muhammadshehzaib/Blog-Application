@@ -44,7 +44,7 @@ export class Blog {
   comments: [Comments];
 
   @Prop([{ type: MongooseSchema.Types.ObjectId, ref: 'Reaction' }])
-  reactions: Reactions[];
+  reactions: Reaction[];
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);
