@@ -31,9 +31,9 @@ export class CategoryController {
   @Roles(Role.Admin)
   async createBlogs(
     @Body()
-    Category: CreateCategoryDto,
+    category: CreateCategoryDto,
   ): Promise<BlogsCategories> {
-    return this.categoryService.create(Category.category);
+    return this.categoryService.create(category);
   }
 
   @Get(':id')

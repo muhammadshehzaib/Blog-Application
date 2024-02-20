@@ -16,9 +16,13 @@ export class CategoryService {
   }
 
   async create(category: BlogsCategories): Promise<BlogsCategories> {
-    const res = await this.categoryModel.create({ category });
-    console.log(res._id);
-    return res;
+    try {
+      const res = await this.categoryModel.create(category);
+      console.log(res);
+      return res;
+    } catch (e) {
+      console.error('User cannot create Category');
+    }
   }
 
   async findById(id: string): Promise<BlogsCategories> {
