@@ -38,32 +38,39 @@ export class ReactionsService {
       reaction_avaliable.reactions.toString() === reactions.reactions.toString()
     ) {
       console.log('this is 2nd if');
+
       console.log(
-        'reaction_avaliable[0]._id',
+        'reaction_avaliable.reactions.toString() : ',
         reaction_avaliable.reactions.toString(),
       );
       console.log(
         'reactions.reactions.toString() : ' + reactions.reactions.toString(),
       );
 
+      console.log('reaction_avaliable._id : ' + reaction_avaliable._id);
+
       const deleteReaction = await this.reactionsModel.findByIdAndDelete(
         reaction_avaliable._id,
       );
       console.log('deleteReaction : ' + deleteReaction);
 
-      const blog = await this.blogModel.findById(reactions.blogId);
+      console.log('reaction_avaliable: ' + reaction_avaliable);
 
-      console.log('This is blog : in the 2nd if ' + blog);
-      console.log('blog.reaction : ' + blog.reactions);
+      console.log('reaction_avaliable.blogId : ' + reaction_avaliable.blogId);
+
+      const blog = await this.blogModel.findById(reaction_avaliable.blogId);
+
+      console.log('This is blog : in the 2nd if ', blog);
+      // console.log('blog.reaction : ' + blog.reactions);
 
       blog.reactions = blog.reactions.filter((id) => {
         console.log('This is id in filter : ', id, deleteReaction._id);
 
-        id.toString() !== deleteReaction._id.toString();
+        return id.toString() !== deleteReaction._id.toString();
       });
-      console.log('blog.reaction after filter method: ' + blog.reactions);
+      // console.log('blog.reaction after filter method: ' + blog.reactions);
       await blog.save();
-      console.log('reaction deleted successfully');
+      // console.log('reaction deleted successfully');
       return deleteReaction;
     }
 

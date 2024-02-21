@@ -21,6 +21,7 @@ export class ReactionsController {
   ): Promise<any> {
     const userId = req.user.id;
     const blogId = req.body.blogId;
+    console.log('Controller reactions : ' + reactions);
 
     const reaction = await this.reactionsService.create(
       {
@@ -29,8 +30,6 @@ export class ReactionsController {
       },
       userId,
     );
-
-    // console.log(reaction);
 
     return reaction;
   }
