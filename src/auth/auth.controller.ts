@@ -20,6 +20,7 @@ export class AuthController {
   @Post('register')
   async register(@Request() req): Promise<any> {
     const { username, email, password, role } = req.body;
+
     const user = await this.usersService.create(
       username,
       email,

@@ -24,9 +24,8 @@ export class Auth {
   @Prop({ required: true, message: 'Password is required' })
   password: string;
 
-  @Prop({ required: false })
+  @Prop({ required: false, default: 'Writer' })
   role: Role;
-
   // @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' })
   // blogId: [Blog];
 }
