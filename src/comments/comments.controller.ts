@@ -23,7 +23,6 @@ export class CommentsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Writer)
   async createComments(
     @Req() req: any,
     @Body()
