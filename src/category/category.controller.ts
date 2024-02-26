@@ -13,9 +13,9 @@ import { CategoryService } from './category.service';
 import { BlogsCategories } from './schemas/category.schema';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Roles } from 'src/roles';
-import { RolesGuard } from 'src/role.guard';
-import { Role } from 'src/auth/schemas/auth.schema';
+import { Roles } from '../roles';
+import { RolesGuard } from '../role.guard';
+import { Role } from '../auth/schemas/auth.schema';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('blogscategories')

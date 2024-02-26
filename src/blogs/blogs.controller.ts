@@ -11,21 +11,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 // import { AuthGuard } from '../auth/auth.guard';
+import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Role } from '../auth/schemas/auth.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { RolesGuard } from '../role.guard';
+import { Roles } from '../roles';
 import { BlogsService } from './blogs.service';
-import { Blog, Status } from './schemas/blogs.schema';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
-import { Roles } from 'src/roles';
-import { RolesGuard } from 'src/role.guard';
-import { Auth, Role } from 'src/auth/schemas/auth.schema';
-import { AuthGuard } from '@nestjs/passport';
-import { Request, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import mongoose from 'mongoose';
-import { CategorySchema } from 'src/category/schemas/category.schema';
-import { CategoryService } from 'src/category/category.service';
-import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
+import { Blog, Status } from './schemas/blogs.schema';
 @Controller('blogs')
 export class BlogsController {
   constructor(

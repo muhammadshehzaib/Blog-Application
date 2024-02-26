@@ -8,15 +8,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsService } from './comments.service';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/role.guard';
-import { Roles } from 'src/roles';
-import { Role } from 'src/auth/schemas/auth.schema';
+import { Role } from '../auth/schemas/auth.schema';
+import { RolesGuard } from '../role.guard';
+import { Roles } from '../roles';
+import { CommentsService } from './comments.service';
 import { CreateCommentsDto } from './dto/create-comment.dto';
-import { Comments, CommentsDocument } from './schemas/comments.schema';
-import { BlogsService } from 'src/blogs/blogs.service';
 import { UpdateCommentsDto } from './dto/update-comment.dto';
+import { CommentsDocument } from './schemas/comments.schema';
 
 @Controller('comments')
 export class CommentsController {

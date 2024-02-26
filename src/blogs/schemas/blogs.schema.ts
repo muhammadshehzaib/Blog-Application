@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { BlogsCategories } from '../../category/schemas/category.schema';
-import { Auth } from 'src/auth/schemas/auth.schema';
-import { Comments } from 'src/comments/schemas/comments.schema';
-import { Reaction, Reactions } from 'src/reactions/schemas/reaction.schema';
+import { Auth } from '../../auth/schemas/auth.schema';
+import { Comments } from '../../comments/schemas/comments.schema';
+import { Reaction, Reactions } from '../../reactions/schemas/reaction.schema';
 
 // export type BlogDocument = HydratedDocument<Blog>;
 export type BlogDocument = Blog & Document;
