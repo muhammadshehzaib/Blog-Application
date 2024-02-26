@@ -22,7 +22,8 @@ export class CommentsController {
   constructor(private commentsService: CommentsService) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Writer)
   async createComments(
     @Req() req: any,
     @Body()
