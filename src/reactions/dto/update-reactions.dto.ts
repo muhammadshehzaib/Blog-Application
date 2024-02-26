@@ -1,6 +1,6 @@
-import { Auth } from 'src/auth/schemas/auth.schema';
+import { Auth } from '../../auth/schemas/auth.schema';
 import { Reaction } from '../schemas/reaction.schema';
-import { Blog } from 'src/blogs/schemas/blogs.schema';
+import { Blog } from '../../blogs/schemas/blogs.schema';
 
 export class UpdateReactionDto {
   readonly reactions: Array<Reaction>;

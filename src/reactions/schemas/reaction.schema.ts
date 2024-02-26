@@ -5,8 +5,8 @@ import {
   Mongoose,
   Schema as MongooseSchema,
 } from 'mongoose';
-import { Auth } from 'src/auth/schemas/auth.schema';
-import { Blog } from 'src/blogs/schemas/blogs.schema';
+import { Auth } from '../../auth/schemas/auth.schema';
+import { Blog } from '../../blogs/schemas/blogs.schema';
 
 export enum Reactions {
   happy = 'happy',

@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BlogsModule } from 'src/blogs/blogs.module';
-import { BlogsService } from 'src/blogs/blogs.service';
-import { BlogSchema } from 'src/blogs/schemas/blogs.schema';
+import { BlogsModule } from '../blogs/blogs.module';
+import { BlogsService } from '../blogs/blogs.service';
+import { BlogSchema } from '../blogs/schemas/blogs.schema';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
 import { CommentsSchema } from './schemas/comments.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { Cloudinary } from 'cloudinary-core';
-import { CategorySchema } from 'src/category/schemas/category.schema';
+import { CategorySchema } from '../category/schemas/category.schema';
 
 @Module({
   imports: [

@@ -1,12 +1,10 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { ReactionsService } from './reactions.service';
-import { Roles } from 'src/roles';
-import { Role } from 'src/auth/schemas/auth.schema';
-import { RolesGuard } from 'src/role.guard';
-import { UpdateReactionDto } from './dto/update-reactions.dto';
-import { Reaction, ReactionDocument } from './schemas/reaction.schema';
-import { CreateReactionDto } from './dto/create-reactions.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Role } from '../auth/schemas/auth.schema';
+import { RolesGuard } from '../role.guard';
+import { Roles } from '../roles';
+import { CreateReactionDto } from './dto/create-reactions.dto';
+import { ReactionsService } from './reactions.service';
 
 @Controller('reactions')
 export class ReactionsController {
