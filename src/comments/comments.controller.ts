@@ -22,7 +22,7 @@ export class CommentsController {
   constructor(private commentsService: CommentsService) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'))
   async createComments(
     @Req() req: any,
     @Body()
