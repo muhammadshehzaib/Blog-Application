@@ -17,12 +17,6 @@ export class CommentsService {
   async create(comment: CreateCommentsDto): Promise<CommentsDocument> {
     const newComment = await this.commentModel.create(comment);
     const blog = await this.blogModel.findById(comment.blog);
-
-    console.log('The is blog in backend : ', comment);
-
-    // console.log('The is blog in backend : ', blog);
-    // console.log('The is blog comments in backend : ', blog.comments);
-
     blog.comments.push(newComment._id);
     blog.save();
     return newComment;
