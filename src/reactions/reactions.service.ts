@@ -19,7 +19,7 @@ export class ReactionsService {
     );
 
     console.log('this is reaction avalaiable : ', reaction_avaliable);
-    console.log('This is userId in id : ' + reactions.blogId);
+    console.log('This is userId in id : ' + reactions);
 
     if (reaction_avaliable === null) {
       const create_reaction = await this.reactionsModel.create(reactions);
