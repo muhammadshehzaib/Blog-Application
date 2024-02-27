@@ -11,13 +11,13 @@ import { Blog } from '../../blogs/schemas/blogs.schema';
 export enum Reactions {
   happy = 'happy',
   sad = 'sad',
-  // Angry = '😡',
-  // Love = '❤️',
-  // Surprised = '😲',
-  // Boring = '😐',
-  // Excited = '😃',
-  // Laugh = '😆',
-  // Shocked = '😱',
+  Angry = 'angry',
+  Love = 'love',
+  Surprised = 'surprised',
+  Boring = 'boring',
+  Excited = 'excited',
+  Laugh = 'laugh',
+  Shocked = 'shocked',
 }
 
 export type ReactionDocuments = HydratedDocument<Reaction>;
