@@ -64,7 +64,7 @@ export class BlogsService {
       .populate('comments')
       .populate('reactions');
 
-    console.log(res);
+    // console.log(res);
 
     return res;
   }
@@ -97,7 +97,7 @@ export class BlogsService {
       filterQuery,
       updateQuery,
     );
-    console.log(approvedblog);
+    // console.log(approvedblog);
 
     return approvedblog;
   }

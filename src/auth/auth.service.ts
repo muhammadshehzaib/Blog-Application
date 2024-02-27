@@ -24,7 +24,7 @@ export class AuthService {
     user: LoginUserDto,
   ): Promise<{ accessToken: string; user: Object }> {
     const userId = await this.authModel.findOne({ username: user.username });
-    console.log('This is userId ' + userId._id);
+    // console.log('This is userId ' + userId._id);
     if (!userId) {
       throw new NotFoundException('user NOT FOUND');
     }
