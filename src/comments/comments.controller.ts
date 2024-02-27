@@ -31,7 +31,7 @@ export class CommentsController {
   ): Promise<CommentsDocument> {
     const userId = req.user.id;
     const blog = req.body.blog;
-    console.log(blog);
+    // console.log(blog);
 
     return this.commentsService.create({ ...comments, userId: userId, blog });
   }

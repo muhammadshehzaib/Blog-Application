@@ -6,7 +6,7 @@ import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
 export class CloudinaryService {
   async uploadImage(file: Express.Multer.File): Promise<any> {
     try {
-      console.log(file);
+      // console.log(file);
 
       return new Promise((resolve, reject) => {
         const uploadStream = v2.uploader.upload_stream(
