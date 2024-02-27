@@ -19,7 +19,7 @@ export class ReactionsService {
     );
 
     console.log('this is reaction avalaiable : ', reaction_avaliable);
-    console.log('This is userId in id : ' + reactions);
+    console.log('This is userId in id : ' + reactions.reactions);
 
     if (reaction_avaliable === null) {
       const create_reaction = await this.reactionsModel.create(reactions);
@@ -35,28 +35,33 @@ export class ReactionsService {
       return create_reaction;
     }
     if (
-      reaction_avaliable.reactions.toString() === reactions.reactions.toString()
+      reaction_avaliable?.reactions?.toString() ===
+      reactions?.reactions?.toString()
     ) {
       console.log('this is 2nd if');
 
       console.log(
         'reaction_avaliable.reactions.toString() : ',
-        reaction_avaliable.reactions.toString(),
+        reaction_avaliable?.reactions?.toString(),
       );
       console.log(
-        'reactions.reactions.toString() : ' + reactions.reactions.toString(),
+        'reactions.reactions.toString() : ' + reactions?.reactions?.toString(),
       );
 
-      console.log('reaction_avaliable._id : ' + reaction_avaliable._id);
+      console.log('reaction_avaliable._id : ' + reaction_avaliable?._id);
 
       const deleteReaction = await this.reactionsModel.findByIdAndDelete(
-        reaction_avaliable._id,
+        reaction_avaliable?._id,
       );
       console.log('deleteReaction : ' + deleteReaction);
 
       console.log('reaction_avaliable: ' + reaction_avaliable);
 
-      console.log('reaction_avaliable.blogId : ' + reaction_avaliable.blogId);
+      console.log('reactions.blogId : ' + JSON.stringify(reactions));
+
+      console.log(
+        'reaction_avaliable.blogId : ' + JSON.stringify(reaction_avaliable),
+      );
 
       const blog = await this.blogModel.findById(reaction_avaliable.blogId);
 
@@ -64,9 +69,9 @@ export class ReactionsService {
       // console.log('blog.reaction : ' + blog.reactions);
 
       blog.reactions = blog.reactions.filter((id) => {
-        console.log('This is id in filter : ', id, deleteReaction._id);
+        console.log('This is id in filter : ', id, deleteReaction?._id);
 
-        return id.toString() !== deleteReaction._id.toString();
+        return id.toString() !== deleteReaction._id?.toString();
       });
       // console.log('blog.reaction after filter method: ' + blog.reactions);
       await blog.save();
