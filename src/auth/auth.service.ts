@@ -4,6 +4,7 @@ import { Auth, Role } from './schemas/auth.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { LoginUserDto } from './dto/login.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,8 @@ export class AuthService {
 
   async validateUser(username: string, password: string): Promise<Auth | null> {
     const user = await this.authModel.findOne({ username });
-    if (user && user.password === password) {
+    if (user && bcrypt.compareSync(password, user.password)) {
+      // Use bcrypt.compareSync to compare hashed password
       return user;
     }
     return null;
@@ -24,7 +26,6 @@ export class AuthService {
     user: LoginUserDto,
   ): Promise<{ accessToken: string; user: Object }> {
     const userId = await this.authModel.findOne({ username: user.username });
-    // console.log('This is userId ' + userId._id);
     if (!userId) {
       throw new NotFoundException('user NOT FOUND');
     }
@@ -42,7 +43,14 @@ export class AuthService {
     password: string,
     role: Role,
   ): Promise<Auth> {
-    const user = new this.authModel({ username, email, password, role });
+    const hashedPassword = bcrypt.hashSync(password, 10); // Hash the password
+
+    const user = new this.authModel({
+      username,
+      email,
+      password: hashedPassword,
+      role,
+    });
     return user.save();
   }
 
