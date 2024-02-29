@@ -52,7 +52,6 @@ export class AuthController {
     @Body()
     body: CreateUserDto,
   ): Promise<any> {
-    //    console.log('res.locals.otpData', res.locals.otpData)
     return this.authService.verifyOtp(query, body);
   }
 }
