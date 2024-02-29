@@ -9,7 +9,6 @@ async function bootstrap() {
     credentials: true,
   });
   if (process.env.NODE_ENV === 'production') {
-    // Production CORS configuration
     app.enableCors({
       origin: [process.env.DEPLOYMENTLINK],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -19,7 +18,6 @@ async function bootstrap() {
       exposedHeaders: 'Location',
     });
   } else {
-    // Development CORS configuration
     app.enableCors({
       origin: [process.env.LOCALHOST],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
