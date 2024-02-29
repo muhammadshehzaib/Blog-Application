@@ -27,8 +27,8 @@ export class CategoryController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'))
+  // @Roles(Role.Admin)
   async createBlogs(
     @Body()
     category: CreateCategoryDto,
