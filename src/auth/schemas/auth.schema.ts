@@ -33,9 +33,6 @@ export class Auth {
     expires: 3600,
   })
   createdAt: Date;
-
-  @Prop({ required: true })
-  token: string;
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

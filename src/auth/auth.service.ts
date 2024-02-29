@@ -156,11 +156,9 @@ export class AuthService {
     });
     console.log('verfified otp', otp);
     if (otp) {
-      //   await this.optModel.findOneAndDelete({email: body.userEmail , code: query.code})
       return { matched: true };
     } else {
       throw new BadRequestException('Invalid Otp');
     }
-    //     return query
   }
 }
