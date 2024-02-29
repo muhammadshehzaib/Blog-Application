@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Date, HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<Auth>;
 
@@ -26,8 +26,16 @@ export class Auth {
 
   @Prop({ required: false, default: 'Writer' })
   role: Role;
-  // @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Blog' })
-  // blogId: [Blog];
+
+  @Prop({
+    type: Date,
+    default: Date.now,
+    expires: 3600,
+  })
+  createdAt: Date;
+
+  @Prop({ required: true })
+  token: string;
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);
