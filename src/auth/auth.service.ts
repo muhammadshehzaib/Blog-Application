@@ -12,6 +12,7 @@ import * as bcrypt from 'bcryptjs';
 import * as nodemailer from 'nodemailer';
 import { CreateUserDto } from './dto/auth.dto';
 import { Otp } from './schemas/otp.schema';
+import { ChangePasswordDto } from './dto/ChangePassword.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -64,6 +65,7 @@ export class AuthService {
   async findById(id: string): Promise<Auth | null> {
     return this.authModel.findById(id).exec();
   }
+
   async generateOtp(body: CreateUserDto): Promise<any> {
     const { email } = body;
     console.log('front', email);
@@ -160,5 +162,23 @@ export class AuthService {
     } else {
       throw new BadRequestException('Invalid Otp');
     }
+  }
+  async changePassword(body: LoginUserDto): Promise<any> {
+    const user = await this.authModel.findOne({ username: body.username });
+
+    if (!user) {
+      throw new BadRequestException('Username does not exist');
+    }
+    const hashedPassword = bcrypt.hashSync(body.password, 10);
+
+    const res = await this.authModel.findOneAndUpdate(
+      { username: user.username },
+      { password: hashedPassword },
+      {
+        new: true,
+      },
+    );
+
+    return res.save();
   }
 }
