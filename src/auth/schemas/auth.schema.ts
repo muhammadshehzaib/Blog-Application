@@ -26,13 +26,6 @@ export class Auth {
 
   @Prop({ required: false, default: 'Writer' })
   role: Role;
-
-  @Prop({
-    type: Date,
-    default: Date.now,
-    expires: 3600,
-  })
-  createdAt: Date;
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);
