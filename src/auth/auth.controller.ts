@@ -11,6 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { Auth } from './schemas/auth.schema';
 import { CreateUserDto } from './dto/auth.dto';
+import { ChangePasswordDto } from './dto/ChangePassword.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,6 +45,8 @@ export class AuthController {
     @Body()
     body: CreateUserDto,
   ) {
+    console.log('This is body : ' + JSON.stringify(body));
+
     return this.authService.generateOtp(body);
   }
   @Patch('/verifyOtp')
@@ -53,5 +56,12 @@ export class AuthController {
     body: CreateUserDto,
   ): Promise<any> {
     return this.authService.verifyOtp(query, body);
+  }
+  @Post('/changePassword')
+  changePassword(
+    @Body()
+    body: ChangePasswordDto,
+  ): Promise<any> {
+    return this.authService.changePassword(body);
   }
 }
