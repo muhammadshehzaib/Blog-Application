@@ -216,4 +216,31 @@ export class AuthService {
 
     return { success: true };
   }
+
+  async changeRole(
+    actingUser: Auth & { _id: mongoose.Types.ObjectId },
+    targetUserId: string,
+    newRole: Role,
+  ): Promise<Auth> {
+    if (!mongoose.isValidObjectId(targetUserId)) {
+      throw new BadRequestException('Invalid user id');
+    }
+
+    const target = await this.authModel.findById(targetUserId);
+    if (!target) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (
+      target.role === Role.Admin &&
+      newRole !== Role.Admin &&
+      actingUser._id.toString() === target._id.toString()
+    ) {
+      throw new BadRequestException('Admins cannot demote themselves');
+    }
+
+    target.role = newRole;
+    target.tokenVersion = (target.tokenVersion ?? 0) + 1;
+    return target.save();
+  }
 }
