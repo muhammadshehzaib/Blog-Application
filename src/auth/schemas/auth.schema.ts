@@ -26,6 +26,9 @@ export class Auth {
 
   @Prop({ required: false, default: 'Writer' })
   role: Role;
+
+  @Prop({ required: true, default: 0 })
+  tokenVersion: number;
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

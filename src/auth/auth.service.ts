@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Auth, Role } from './schemas/auth.schema';
@@ -37,7 +38,10 @@ export class AuthService {
     if (!userId) {
       throw new NotFoundException('user NOT FOUND');
     }
-    const payload = { sub: userId._id };
+    const payload = {
+      sub: userId._id,
+      tokenVersion: userId.tokenVersion ?? 0,
+    };
 
     return {
       accessToken: await this.jwtService.signAsync(payload),
@@ -149,36 +153,67 @@ export class AuthService {
     return otpResponse;
   }
   async verifyOtp(query: { code: string }, body: CreateUserDto): Promise<any> {
-    console.log('verifyOtp query', query);
-    console.log('verifyOtp body', body);
-    const otp: any = await this.optModel.findOne({
+    const otp = await this.optModel.findOne({
       email: body.email,
       code: query.code,
       expiresAt: { $gt: new Date() },
     });
-    console.log('verfified otp', otp);
-    if (otp) {
-      return { matched: true };
-    } else {
+    if (!otp) {
       throw new BadRequestException('Invalid Otp');
     }
-  }
-  async changePassword(body: LoginUserDto): Promise<any> {
-    const user = await this.authModel.findOne({ username: body.username });
 
+    const user = await this.authModel.findOne({ email: body.email });
     if (!user) {
-      throw new BadRequestException('Username does not exist');
+      throw new BadRequestException('Invalid Otp');
     }
-    const hashedPassword = bcrypt.hashSync(body.password, 10);
 
-    const res = await this.authModel.findOneAndUpdate(
-      { username: user.username },
-      { password: hashedPassword },
+    await this.optModel.deleteOne({ _id: otp._id });
+
+    const resetToken = await this.jwtService.signAsync(
       {
-        new: true,
+        sub: user._id,
+        email: user.email,
+        purpose: 'password_reset',
+      },
+      { expiresIn: '10m' },
+    );
+
+    return { matched: true, resetToken };
+  }
+
+  async changePassword(body: ChangePasswordDto): Promise<{ success: true }> {
+    if (!body.newPassword || body.newPassword.length < 8) {
+      throw new BadRequestException(
+        'Password must be at least 8 characters long',
+      );
+    }
+
+    let payload: { sub: string; email: string; purpose: string };
+    try {
+      payload = await this.jwtService.verifyAsync(body.resetToken);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired reset token');
+    }
+
+    if (payload.purpose !== 'password_reset') {
+      throw new UnauthorizedException('Invalid reset token');
+    }
+
+    const user = await this.authModel.findById(payload.sub);
+    if (!user || user.email !== payload.email) {
+      throw new UnauthorizedException('Invalid reset token');
+    }
+
+    const hashedPassword = bcrypt.hashSync(body.newPassword, 10);
+
+    await this.authModel.updateOne(
+      { _id: user._id },
+      {
+        $set: { password: hashedPassword },
+        $inc: { tokenVersion: 1 },
       },
     );
 
-    return res.save();
+    return { success: true };
   }
 }

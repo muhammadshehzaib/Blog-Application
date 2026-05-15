@@ -1,4 +1,10 @@
+import { IsString, MinLength } from 'class-validator';
+
 export class ChangePasswordDto {
-  readonly username: string;
-  readonly password: string;
+  @IsString()
+  readonly resetToken: string;
+
+  @IsString()
+  @MinLength(8)
+  readonly newPassword: string;
 }
