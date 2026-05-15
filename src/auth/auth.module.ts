@@ -4,7 +4,7 @@ import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
+import { ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthSchema } from './schemas/auth.schema';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -16,9 +16,12 @@ import { OtpSchema } from './schemas/otp.schema';
     MongooseModule.forFeature([{ name: 'Otp', schema: OtpSchema }]),
 
     PassportModule,
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '365d' },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (cfg: ConfigService) => ({
+        secret: cfg.getOrThrow<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '15m' },
+      }),
     }),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
