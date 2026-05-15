@@ -14,17 +14,21 @@ export class ReactionsService {
     private blogModel: Model<BlogDocument>,
   ) {}
   async create(reactions: CreateReactionDto, id: string): Promise<any> {
-    const reaction_avaliable = await this.reactionsModel.findOne(
-      reactions.userId,
-    );
+    const reaction_avaliable = await this.reactionsModel.findOne({
+      userId: id,
+      blogId: reactions.blogId,
+    });
 
     if (reaction_avaliable === null) {
-      const create_reaction = await this.reactionsModel.create(reactions);
+      const create_reaction = await this.reactionsModel.create({
+        ...reactions,
+        userId: id,
+      });
 
-      const blog = await this.blogModel.findById(create_reaction.blogId);
-      blog?.reactions.push(create_reaction._id);
-
-      blog?.save();
+      await this.blogModel.updateOne(
+        { _id: create_reaction.blogId },
+        { $push: { reactions: create_reaction._id } },
+      );
 
       return create_reaction;
     }
@@ -36,12 +40,11 @@ export class ReactionsService {
         reaction_avaliable?._id,
       );
 
-      const blog = await this.blogModel.findById(reaction_avaliable.blogId);
+      await this.blogModel.updateOne(
+        { _id: reaction_avaliable.blogId },
+        { $pull: { reactions: deleteReaction._id } },
+      );
 
-      blog.reactions = blog.reactions.filter((id) => {
-        return id.toString() !== deleteReaction._id?.toString();
-      });
-      await blog.save();
       return deleteReaction;
     }
 

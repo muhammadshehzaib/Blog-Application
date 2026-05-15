@@ -7,26 +7,30 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Auth, Role } from './schemas/auth.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Query } from 'mongoose';
+import mongoose from 'mongoose';
 import { LoginUserDto } from './dto/login.dto';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { CreateUserDto } from './dto/auth.dto';
 import { Otp } from './schemas/otp.schema';
 import { ChangePasswordDto } from './dto/ChangePassword.dto';
+
+const BCRYPT_ROUNDS = 10;
+const OTP_MAX_ATTEMPTS = 5;
+
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(Auth.name) private authModel: mongoose.Model<Auth>,
-    @InjectModel(Otp.name) //inject the model into this class
+    @InjectModel(Otp.name)
     private optModel: mongoose.Model<Otp>,
     private jwtService: JwtService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<Auth | null> {
     const user = await this.authModel.findOne({ username });
-    if (user && bcrypt.compareSync(password, user.password)) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
     return null;
@@ -56,7 +60,7 @@ export class AuthService {
     password: string,
     role: Role,
   ): Promise<Auth> {
-    const hashedPassword = bcrypt.hashSync(password, 10); // Hash the password
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
     const user = new this.authModel({
       username,
@@ -80,7 +84,7 @@ export class AuthService {
     }
 
     const otpCode = crypto.randomInt(100000, 1000000).toString();
-    const hashedOtp = bcrypt.hashSync(otpCode, 10);
+    const hashedOtp = await bcrypt.hash(otpCode, BCRYPT_ROUNDS);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     const transporter = nodemailer.createTransport({
@@ -117,12 +121,13 @@ export class AuthService {
 
     await this.optModel.findOneAndUpdate(
       { email: user.email },
-      { $set: { code: hashedOtp, expiresAt } },
+      { $set: { code: hashedOtp, expiresAt, attempts: 0 } },
       { upsert: true, new: true },
     );
 
     return { status: 'sent' };
   }
+
   async verifyOtp(query: { code: string }, body: CreateUserDto): Promise<any> {
     if (!query?.code || typeof query.code !== 'string') {
       throw new BadRequestException('Invalid Otp');
@@ -132,7 +137,21 @@ export class AuthService {
       email: body.email,
       expiresAt: { $gt: new Date() },
     });
-    if (!otp || !bcrypt.compareSync(query.code, otp.code)) {
+    if (!otp) {
+      throw new BadRequestException('Invalid Otp');
+    }
+
+    if ((otp.attempts ?? 0) >= OTP_MAX_ATTEMPTS) {
+      await this.optModel.deleteOne({ _id: otp._id });
+      throw new BadRequestException('Too many attempts. Request a new OTP.');
+    }
+
+    const matches = await bcrypt.compare(query.code, otp.code);
+    if (!matches) {
+      await this.optModel.updateOne(
+        { _id: otp._id },
+        { $inc: { attempts: 1 } },
+      );
       throw new BadRequestException('Invalid Otp');
     }
 
@@ -178,7 +197,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid reset token');
     }
 
-    const hashedPassword = bcrypt.hashSync(body.newPassword, 10);
+    const hashedPassword = await bcrypt.hash(body.newPassword, BCRYPT_ROUNDS);
 
     await this.authModel.updateOne(
       { _id: user._id },

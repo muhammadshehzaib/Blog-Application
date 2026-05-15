@@ -14,11 +14,14 @@ export class CommentsService {
     @InjectModel(Blog.name)
     private blogModel: Model<BlogDocument>,
   ) {}
-  async create(comment: CreateCommentsDto): Promise<CommentsDocument> {
+  async create(
+    comment: CreateCommentsDto & { userId: string },
+  ): Promise<CommentsDocument> {
     const newComment = await this.commentModel.create(comment);
-    const blog = await this.blogModel.findById(comment.blog);
-    blog.comments.push(newComment._id);
-    blog.save();
+    await this.blogModel.updateOne(
+      { _id: comment.blog },
+      { $push: { comments: newComment._id } },
+    );
     return newComment;
   }
   async findAll(): Promise<CommentsDocument[]> {

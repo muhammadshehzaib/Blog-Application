@@ -1,10 +1,16 @@
-import { Role } from '../schemas/auth.schema';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateUserDto {
-  readonly username: string;
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  readonly username?: string;
+
+  @IsEmail()
   readonly email: string;
-  readonly password: string;
-  readonly blogId: Array<string>;
-  readonly role: Role;
-  readonly token: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(8)
+  readonly password?: string;
 }

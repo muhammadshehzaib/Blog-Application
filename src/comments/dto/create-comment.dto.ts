@@ -1,8 +1,11 @@
-import { Auth } from '../../auth/schemas/auth.schema';
-import { Blog } from '../../blogs/schemas/blogs.schema';
+import { IsMongoId, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateCommentsDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(2000)
   readonly comment: string;
-  readonly blog: Array<Blog>;
-  readonly userId: Array<Auth>;
+
+  @IsMongoId()
+  readonly blog: string;
 }

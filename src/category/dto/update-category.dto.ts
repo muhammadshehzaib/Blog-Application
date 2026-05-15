@@ -1,6 +1,9 @@
-import { BlogsCategories } from '../schemas/category.schema';
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateCategoryDto {
-  readonly category: BlogsCategories;
-  readonly createdAt: Date;
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(60)
+  readonly category?: string;
 }

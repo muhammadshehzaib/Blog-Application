@@ -30,7 +30,9 @@ export class BlogsService {
     return blog;
   }
 
-  async create(blog: CreateBlogDto): Promise<Blog> {
+  async create(
+    blog: CreateBlogDto & { image: string; userId: string },
+  ): Promise<Blog> {
     const isValid = mongoose.isValidObjectId(blog.category);
     if (!isValid) {
       throw new BadRequestException('Incorrect Object Id');
@@ -57,14 +59,12 @@ export class BlogsService {
     return blog;
   }
 
-  async find(blog: CreateBlogDto): Promise<Blog[]> {
+  async find(query: Record<string, any>): Promise<Blog[]> {
     const res = await this.blogModel
-      .find(blog)
+      .find(query)
       .populate('category')
       .populate('comments')
       .populate('reactions');
-
-    // console.log(res);
 
     return res;
   }

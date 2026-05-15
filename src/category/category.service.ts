@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogsCategories } from './schemas/category.schema';
 import * as mongoose from 'mongoose';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -11,25 +12,18 @@ export class CategoryService {
   ) {}
 
   async findAll(): Promise<BlogsCategories[]> {
-    const category = await this.categoryModel.find();
-    return category;
+    return this.categoryModel.find();
   }
 
-  async create(category: BlogsCategories): Promise<BlogsCategories> {
-    try {
-      const res = await this.categoryModel.create(category);
-      console.log(res);
-      return res;
-    } catch (e) {
-      console.error('User cannot create Category');
-    }
+  async create(category: CreateCategoryDto): Promise<BlogsCategories> {
+    return this.categoryModel.create(category);
   }
 
   async findById(id: string): Promise<BlogsCategories> {
     const category = await this.categoryModel.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Blog not found.');
+      throw new NotFoundException('Category not found.');
     }
 
     return category;
@@ -37,15 +31,19 @@ export class CategoryService {
 
   async updateById(
     id: string,
-    category: BlogsCategories,
+    category: string | undefined,
   ): Promise<BlogsCategories> {
-    return await this.categoryModel.findByIdAndUpdate(id, category, {
-      new: true,
-      runValidators: true,
-    });
+    if (!category) {
+      throw new NotFoundException('Category name is required.');
+    }
+    return this.categoryModel.findByIdAndUpdate(
+      id,
+      { category },
+      { new: true, runValidators: true },
+    );
   }
 
   async deleteById(id: string): Promise<BlogsCategories> {
-    return await this.categoryModel.findByIdAndDelete(id);
+    return this.categoryModel.findByIdAndDelete(id);
   }
 }

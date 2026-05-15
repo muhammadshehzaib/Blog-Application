@@ -1,6 +1,8 @@
-import { BlogsCategories } from '../schemas/category.schema';
+import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateCategoryDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(60)
   readonly category: string;
-  readonly createdAt: Date;
 }
