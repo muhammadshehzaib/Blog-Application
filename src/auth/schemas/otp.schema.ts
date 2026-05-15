@@ -8,7 +8,7 @@ export class Otp extends Document {
   email: string;
   @Prop()
   code: string;
-  @Prop({ default: Date.now() + 5 * 60 * 1000 }) // Expire after 5 minutes
+  @Prop({ default: () => new Date(Date.now() + 5 * 60 * 1000) })
   expiresAt: Date;
 }
 export const OtpSchema = SchemaFactory.createForClass(Otp);

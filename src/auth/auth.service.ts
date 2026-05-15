@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Query } from 'mongoose';
 import { LoginUserDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { CreateUserDto } from './dto/auth.dto';
 import { Otp } from './schemas/otp.schema';
@@ -70,17 +71,18 @@ export class AuthService {
     return this.authModel.findById(id).exec();
   }
 
-  async generateOtp(body: CreateUserDto): Promise<any> {
+  async generateOtp(body: CreateUserDto): Promise<{ status: string }> {
     const { email } = body;
-    console.log('front', email);
-    const user = await this.authModel.findOne({ email: email });
+    const user = await this.authModel.findOne({ email });
 
     if (!user) {
       throw new BadRequestException('Email does not exist');
     }
-    const otpExist = await this.optModel.findOne({ email: user.email });
 
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpCode = crypto.randomInt(100000, 1000000).toString();
+    const hashedOtp = bcrypt.hashSync(otpCode, 10);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -102,63 +104,35 @@ export class AuthService {
         </body>
       </html>
     `;
-    const message = {
+    const mailResponse = await transporter.sendMail({
       from: process.env.EMAIL,
       to: user.email,
       subject: 'Otp verifier',
       html: htmlContent,
-    };
-    const mailResponse = await transporter.sendMail(message);
-    console.log('mailResponse', mailResponse);
-    let otpResponse;
-    if (mailResponse.accepted.includes(user.email)) {
-      if (!otpExist) {
-        const otp = await this.optModel.create({
-          email: user.email,
-          code: otpCode,
-        });
-        console.log('otp in db', otp);
-        otpResponse = {
-          message: 'OTP generated successfully',
-          otpCode,
-          status: 200,
-        };
-        // return otpCode
-      } else {
-        const updateOtp = await this.optModel.findOneAndUpdate(
-          { email: user.email },
-          {
-            $set: {
-              code: otpCode,
-              expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-            },
-          },
-          { new: true }, // Return the updated document
-        );
-        console.log('updated otp', updateOtp);
-        otpResponse = {
-          message: 'OTP updated successfully',
-          otpCode,
-          status: 200,
-        };
-        // return updateOtp.code
-      }
-    } else {
-      otpResponse = {
-        message: 'Failed to send OTP',
-        otpCode: null,
-        status: 401,
-      };
+    });
+
+    if (!mailResponse.accepted.includes(user.email)) {
+      return { status: 'failed' };
     }
-    return otpResponse;
+
+    await this.optModel.findOneAndUpdate(
+      { email: user.email },
+      { $set: { code: hashedOtp, expiresAt } },
+      { upsert: true, new: true },
+    );
+
+    return { status: 'sent' };
   }
   async verifyOtp(query: { code: string }, body: CreateUserDto): Promise<any> {
+    if (!query?.code || typeof query.code !== 'string') {
+      throw new BadRequestException('Invalid Otp');
+    }
+
     const otp = await this.optModel.findOne({
       email: body.email,
-      code: query.code,
       expiresAt: { $gt: new Date() },
     });
-    if (!otp) {
+    if (!otp || !bcrypt.compareSync(query.code, otp.code)) {
       throw new BadRequestException('Invalid Otp');
     }
 
