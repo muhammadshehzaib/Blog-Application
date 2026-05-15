@@ -116,7 +116,7 @@ export class BlogsController {
   }
 
   @Put('approved/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
   async approvedBlog(
     @Param('id')
@@ -127,7 +127,8 @@ export class BlogsController {
   }
 
   @Put('disapproved/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
   async disApprovedBlog(
     @Param('id')
     id: string,
