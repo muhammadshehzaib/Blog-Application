@@ -10,13 +10,7 @@ export class CloudinaryService {
 
       return new Promise((resolve, reject) => {
         const uploadStream = v2.uploader.upload_stream(
-          {
-            resource_type: 'auto',
-            cloud_name: 'dxy3sjsig',
-            api_key: '514265386468787',
-            api_secret: '5rmIgAfAsl-O3y3EoS4i5AgKnSE',
-          },
-
+          { resource_type: 'auto' },
           (error, result) => {
             if (error) {
               console.log(error);

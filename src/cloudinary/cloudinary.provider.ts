@@ -1,13 +1,16 @@
+import { ConfigService } from '@nestjs/config';
 import { v2 } from 'cloudinary';
+
 export const CLOUDINARY = 'Cloudinary';
 
 export const CloudinaryProvider = {
   provide: CLOUDINARY,
-  useFactory: () => {
+  inject: [ConfigService],
+  useFactory: (cfg: ConfigService) => {
     return v2.config({
-      cloud_name: 'dxy3sjsig',
-      api_key: '514265386468787',
-      api_secret: '5rmIgAfAsl-O3y3EoS4i5AgKnSE',
+      cloud_name: cfg.getOrThrow<string>('CLOUDINARY_CLOUD_NAME'),
+      api_key: cfg.getOrThrow<string>('CLOUDINARY_API_KEY'),
+      api_secret: cfg.getOrThrow<string>('CLOUDINARY_API_SECRET'),
     });
   },
 };
