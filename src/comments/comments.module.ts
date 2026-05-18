@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BlogsModule } from '../blogs/blogs.module';
 import { BlogSchema } from '../blogs/schemas/blogs.schema';
 import { CommentsController } from './comments.controller';
+import { CommentsGateway } from './comments.gateway';
 import { CommentsService } from './comments.service';
 import { CommentsSchema } from './schemas/comments.schema';
 
@@ -13,6 +14,6 @@ import { CommentsSchema } from './schemas/comments.schema';
     BlogsModule,
   ],
   controllers: [CommentsController],
-  providers: [CommentsService],
+  providers: [CommentsService, CommentsGateway],
 })
 export class CommentsModule {}

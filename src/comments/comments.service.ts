@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../blogs/schemas/blogs.schema';
+import { CommentsGateway } from './comments.gateway';
 import { CreateCommentsDto } from './dto/create-comment.dto';
 import { UpdateCommentsDto } from './dto/update-comment.dto';
 import { Comments, CommentsDocument } from './schemas/comments.schema';
@@ -13,6 +14,7 @@ export class CommentsService {
     private commentModel: Model<CommentsDocument>,
     @InjectModel(Blog.name)
     private blogModel: Model<BlogDocument>,
+    private commentsGateway: CommentsGateway,
   ) {}
   async create(
     comment: CreateCommentsDto & { userId: string },
@@ -21,6 +23,10 @@ export class CommentsService {
     await this.blogModel.updateOne(
       { _id: comment.blog },
       { $push: { comments: newComment._id } },
+    );
+    this.commentsGateway.broadcastNewComment(
+      String(comment.blog),
+      newComment,
     );
     return newComment;
   }
