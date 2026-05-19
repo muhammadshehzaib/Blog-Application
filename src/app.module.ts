@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BlogsModule } from './blogs/blogs.module';
+import { CacheModule } from './cache/cache.module';
 import { CategoryModule } from './category/category.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CommentsModule } from './comments/comments.module';
@@ -23,6 +24,7 @@ import { ReactionsModule } from './reactions/reactions.module';
       { name: 'medium', ttl: 60_000, limit: 100 },
       { name: 'long', ttl: 3_600_000, limit: 1_000 },
     ]),
+    CacheModule,
     BlogsModule,
     CategoryModule,
     MongooseModule.forRoot(process.env.DBURI),

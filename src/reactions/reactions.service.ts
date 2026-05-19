@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { CacheService } from '../cache/cache.service';
 import { CreateReactionDto } from './dto/create-reactions.dto';
 import { ReactionsGateway } from './reactions.gateway';
 import { Reaction, ReactionDocument } from './schemas/reaction.schema';
@@ -14,6 +15,7 @@ export class ReactionsService {
     @InjectModel(Blog.name)
     private blogModel: Model<BlogDocument>,
     private reactionsGateway: ReactionsGateway,
+    private cache: CacheService,
   ) {}
 
   private async getCountsForBlog(
@@ -35,6 +37,7 @@ export class ReactionsService {
 
   private async broadcastCounts(blogId: string): Promise<void> {
     const counts = await this.getCountsForBlog(blogId);
+    await this.cache.del(`blog:${blogId}`, 'blogs:list:all');
     this.reactionsGateway.broadcastReactionUpdate(blogId, counts);
   }
 

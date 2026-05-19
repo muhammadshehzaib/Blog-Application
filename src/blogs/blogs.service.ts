@@ -5,28 +5,41 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { CacheService } from '../cache/cache.service';
 import { BlogsCategories } from '../category/schemas/category.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { Blog, BlogDocument, Status } from './schemas/blogs.schema';
+
+const BLOG_TTL_SECONDS = 5 * 60;
+const BLOGS_LIST_TTL_SECONDS = 60;
+
+const blogKey = (id: string) => `blog:${id}`;
+const BLOGS_LIST_KEY = 'blogs:list:all';
+
 @Injectable()
 export class BlogsService {
   constructor(
     @InjectModel(Blog.name)
-    private blogModel // private blogsModel:mongoose.Model<Blog>,
-    : Model<BlogDocument>,
+    private blogModel: Model<BlogDocument>,
     @InjectModel(BlogsCategories.name)
     private categoryModel: Model<BlogsCategories>,
     private cloudinary: CloudinaryService,
+    private cache: CacheService,
   ) {}
 
   async findAll(): Promise<Blog[]> {
+    const cached = await this.cache.get<Blog[]>(BLOGS_LIST_KEY);
+    if (cached) return cached;
+
     const blog = await this.blogModel
       .find()
       .populate('category')
       .populate('comments')
       .populate('reactions');
+
+    await this.cache.set(BLOGS_LIST_KEY, blog, BLOGS_LIST_TTL_SECONDS);
     return blog;
   }
 
@@ -42,10 +55,14 @@ export class BlogsService {
       throw new NotFoundException('Not found category');
     }
     const res = await this.blogModel.create(blog);
+    await this.cache.del(BLOGS_LIST_KEY);
     return res;
   }
 
   async findById(id: string): Promise<any> {
+    const cached = await this.cache.get<Blog>(blogKey(id));
+    if (cached) return cached;
+
     const blog = await this.blogModel
       .findById(id)
       .populate('category')
@@ -56,6 +73,7 @@ export class BlogsService {
       throw new NotFoundException('Blog not found.');
     }
 
+    await this.cache.set(blogKey(id), blog, BLOG_TTL_SECONDS);
     return blog;
   }
 
@@ -73,7 +91,9 @@ export class BlogsService {
     const blogId = await this.blogModel.findById(id);
     const userId = blogId.userId.toString();
     if (userId === req) {
-      return await this.blogModel.findByIdAndUpdate(id, blog);
+      const updated = await this.blogModel.findByIdAndUpdate(id, blog);
+      await this.cache.del(blogKey(id), BLOGS_LIST_KEY);
+      return updated;
     }
     throw new NotFoundException('UserId not found.');
   }
@@ -82,7 +102,9 @@ export class BlogsService {
     const blogId = await this.blogModel.findById(id);
     const userId = blogId.userId.toString();
     if (userId === req) {
-      return await this.blogModel.findByIdAndDelete(id);
+      const deleted = await this.blogModel.findByIdAndDelete(id);
+      await this.cache.del(blogKey(id), BLOGS_LIST_KEY);
+      return deleted;
     }
     throw new NotFoundException('UserId not found.');
   }
@@ -97,7 +119,7 @@ export class BlogsService {
       filterQuery,
       updateQuery,
     );
-    // console.log(approvedblog);
+    await this.cache.del(blogKey(id), BLOGS_LIST_KEY);
 
     return approvedblog;
   }
@@ -109,6 +131,11 @@ export class BlogsService {
       new: true,
       runValidators: true,
     };
-    return await this.blogModel.findByIdAndUpdate(filterQuery, updateQuery);
+    const updated = await this.blogModel.findByIdAndUpdate(
+      filterQuery,
+      updateQuery,
+    );
+    await this.cache.del(blogKey(id), BLOGS_LIST_KEY);
+    return updated;
   }
 }

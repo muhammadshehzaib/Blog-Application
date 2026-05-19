@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../blogs/schemas/blogs.schema';
+import { CacheService } from '../cache/cache.service';
 import { CommentsGateway } from './comments.gateway';
 import { CreateCommentsDto } from './dto/create-comment.dto';
 import { UpdateCommentsDto } from './dto/update-comment.dto';
@@ -15,6 +16,7 @@ export class CommentsService {
     @InjectModel(Blog.name)
     private blogModel: Model<BlogDocument>,
     private commentsGateway: CommentsGateway,
+    private cache: CacheService,
   ) {}
   async create(
     comment: CreateCommentsDto & { userId: string },
@@ -24,6 +26,7 @@ export class CommentsService {
       { _id: comment.blog },
       { $push: { comments: newComment._id } },
     );
+    await this.cache.del(`blog:${comment.blog}`, 'blogs:list:all');
     this.commentsGateway.broadcastNewComment(
       String(comment.blog),
       newComment,
