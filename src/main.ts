@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { RedisIoAdapter } from './redis-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -27,6 +28,11 @@ async function bootstrap() {
       'Origin,X-Requested-With,Content-Type,Accept,Authorization',
     exposedHeaders: 'Location',
   });
+
+  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379';
+  const redisAdapter = new RedisIoAdapter(app);
+  await redisAdapter.connectToRedis(redisUrl);
+  app.useWebSocketAdapter(redisAdapter);
 
   await app.listen(process.env.PORT ?? 3002);
 }
