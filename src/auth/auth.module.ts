@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthSchema } from './schemas/auth.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OtpSchema } from './schemas/otp.schema';
+import { WsAuthService } from './ws-auth.service';
 
 @Module({
   imports: [
@@ -24,8 +25,8 @@ import { OtpSchema } from './schemas/otp.schema';
       }),
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
-  exports: [AuthService, JwtModule],
+  providers: [AuthService, LocalStrategy, JwtStrategy, WsAuthService],
+  exports: [AuthService, JwtModule, WsAuthService],
   controllers: [AuthController],
 })
 export class AuthModule {}
