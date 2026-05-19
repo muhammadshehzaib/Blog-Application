@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthSchema } from './schemas/auth.schema';
+import { MailModule } from '../mail/mail.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OtpSchema } from './schemas/otp.schema';
 import { WsAuthService } from './ws-auth.service';
@@ -24,6 +25,7 @@ import { WsAuthService } from './ws-auth.service';
         signOptions: { expiresIn: '15m' },
       }),
     }),
+    MailModule,
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy, WsAuthService],
   exports: [AuthService, JwtModule, WsAuthService],

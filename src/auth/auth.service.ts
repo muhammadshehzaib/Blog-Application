@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 import { LoginUserDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import * as nodemailer from 'nodemailer';
+import { MailService } from '../mail/mail.service';
 import { CreateUserDto } from './dto/auth.dto';
 import { Otp } from './schemas/otp.schema';
 import { ChangePasswordDto } from './dto/ChangePassword.dto';
@@ -26,6 +26,7 @@ export class AuthService {
     @InjectModel(Otp.name)
     private optModel: mongoose.Model<Otp>,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<Auth | null> {
@@ -87,13 +88,11 @@ export class AuthService {
     const hashedOtp = await bcrypt.hash(otpCode, BCRYPT_ROUNDS);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
+    await this.optModel.findOneAndUpdate(
+      { email: user.email },
+      { $set: { code: hashedOtp, expiresAt, attempts: 0 } },
+      { upsert: true, new: true },
+    );
 
     const htmlContent = `
       <html>
@@ -108,22 +107,12 @@ export class AuthService {
         </body>
       </html>
     `;
-    const mailResponse = await transporter.sendMail({
-      from: process.env.EMAIL,
+
+    await this.mailService.enqueue({
       to: user.email,
       subject: 'Otp verifier',
       html: htmlContent,
     });
-
-    if (!mailResponse.accepted.includes(user.email)) {
-      return { status: 'failed' };
-    }
-
-    await this.optModel.findOneAndUpdate(
-      { email: user.email },
-      { $set: { code: hashedOtp, expiresAt, attempts: 0 } },
-      { upsert: true, new: true },
-    );
 
     return { status: 'sent' };
   }
