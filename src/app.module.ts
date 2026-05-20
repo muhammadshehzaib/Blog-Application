@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -12,7 +13,10 @@ import { CacheModule } from './cache/cache.module';
 import { CategoryModule } from './category/category.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CommentsModule } from './comments/comments.module';
+import { HealthModule } from './health/health.module';
+import { loggerConfig } from './logger.config';
 import { MailModule } from './mail/mail.module';
+import { MetricsModule } from './metrics/metrics.module';
 import { ReactionsModule } from './reactions/reactions.module';
 
 @Module({
@@ -21,6 +25,7 @@ import { ReactionsModule } from './reactions/reactions.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
+    LoggerModule.forRoot(loggerConfig),
     ThrottlerModule.forRoot([
       { name: 'short', ttl: 1_000, limit: 10 },
       { name: 'medium', ttl: 60_000, limit: 100 },
@@ -40,6 +45,8 @@ import { ReactionsModule } from './reactions/reactions.module';
     ReactionsModule,
     CloudinaryModule,
     MailModule,
+    HealthModule,
+    MetricsModule,
   ],
 
   controllers: [AppController],

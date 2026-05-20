@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Model, Types } from 'mongoose';
+import { Counter } from 'prom-client';
 import { CacheService } from '../cache/cache.service';
+import { REACTIONS_CHANGED } from '../metrics/metrics.module';
 import { CreateReactionDto } from './dto/create-reactions.dto';
 import { ReactionsGateway } from './reactions.gateway';
 import { Reaction, ReactionDocument } from './schemas/reaction.schema';
@@ -16,6 +19,8 @@ export class ReactionsService {
     private blogModel: Model<BlogDocument>,
     private reactionsGateway: ReactionsGateway,
     private cache: CacheService,
+    @InjectMetric(REACTIONS_CHANGED)
+    private reactionsChanged: Counter<string>,
   ) {}
 
   private async getCountsForBlog(
@@ -59,6 +64,7 @@ export class ReactionsService {
       );
 
       await this.broadcastCounts(reactions.blogId);
+      this.reactionsChanged.inc({ action: 'create' });
       return create_reaction;
     }
     if (
@@ -75,6 +81,7 @@ export class ReactionsService {
       );
 
       await this.broadcastCounts(reactions.blogId);
+      this.reactionsChanged.inc({ action: 'delete' });
       return deleteReaction;
     }
 
@@ -84,6 +91,7 @@ export class ReactionsService {
       { new: true },
     );
     await this.broadcastCounts(reactions.blogId);
+    this.reactionsChanged.inc({ action: 'update' });
     return updateReaction;
   }
 }
