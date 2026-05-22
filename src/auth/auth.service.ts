@@ -76,6 +76,10 @@ export class AuthService {
     return this.authModel.findById(id).exec();
   }
 
+  async listUsers(): Promise<Auth[]> {
+    return this.authModel.find().select('-password').exec();
+  }
+
   async generateOtp(body: CreateUserDto): Promise<{ status: string }> {
     const { email } = body;
     const user = await this.authModel.findOne({ email });

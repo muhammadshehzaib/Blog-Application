@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
@@ -64,6 +65,13 @@ export class AuthController {
   @Throttle({ short: { limit: 5, ttl: 60_000 } })
   changePassword(@Body() body: ChangePasswordDto): Promise<any> {
     return this.authService.changePassword(body);
+  }
+
+  @Get('/users')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  listUsers(): Promise<any> {
+    return this.authService.listUsers();
   }
 
   @Patch('/users/:id/role')
