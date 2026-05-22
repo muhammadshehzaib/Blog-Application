@@ -9,6 +9,7 @@ import { AiService } from '../ai/ai.service';
 import { CacheService } from '../cache/cache.service';
 import { BlogsCategories } from '../category/schemas/category.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { QdrantService } from '../search/qdrant.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { Blog, BlogDocument, Status } from './schemas/blogs.schema';
@@ -20,6 +21,7 @@ const AI_RESULT_TTL_SECONDS = 24 * 60 * 60;
 const blogKey = (id: string) => `blog:${id}`;
 const summaryKey = (id: string) => `blog:summary:${id}`;
 const autoTagKey = (id: string) => `blog:autotag:${id}`;
+const relatedKey = (id: string) => `blog:related:${id}`;
 const BLOGS_LIST_KEY = 'blogs:list:all';
 
 @Injectable()
@@ -32,7 +34,81 @@ export class BlogsService {
     private cloudinary: CloudinaryService,
     private cache: CacheService,
     private ai: AiService,
+    private qdrant: QdrantService,
   ) {}
+
+  private blogText(blog: { title: string; content: string }): string {
+    return `${blog.title}\n\n${blog.content}`;
+  }
+
+  /**
+   * Embed a blog and store its vector in Qdrant. Non-fatal: if embedding
+   * or Qdrant fails, the blog still exists — it just won't appear in
+   * recommendations until the next reindex.
+   */
+  private async indexBlog(blog: BlogDocument): Promise<void> {
+    try {
+      const vector = await this.ai.embed(this.blogText(blog));
+      if (vector.length === 0) return;
+      await this.qdrant.upsert(String(blog._id), vector, {
+        blogId: String(blog._id),
+        title: blog.title,
+      });
+    } catch {
+      /* swallow — indexing failure must not break blog writes */
+    }
+  }
+
+  async related(
+    id: string,
+    limit = 5,
+  ): Promise<{ related: Blog[]; cached: boolean }> {
+    const cached = await this.cache.get<{ related: Blog[] }>(relatedKey(id));
+    if (cached) return { ...cached, cached: true };
+
+    const blog = await this.blogModel.findById(id);
+    if (!blog) {
+      throw new NotFoundException('Blog not found.');
+    }
+
+    // Get this blog's vector. If it was never indexed (older blog),
+    // embed it now and store it so next time it's already there.
+    let vector = await this.qdrant.getVector(id);
+    if (!vector) {
+      vector = await this.ai.embed(this.blogText(blog));
+      await this.qdrant.upsert(id, vector, {
+        blogId: id,
+        title: blog.title,
+      });
+    }
+
+    const hits = await this.qdrant.search(vector, limit, id);
+    const ids = hits.map((h) => h.blogId);
+
+    // $in doesn't preserve order — re-sort to match similarity ranking.
+    const found = await this.blogModel
+      .find({ _id: { $in: ids } })
+      .populate('category');
+    const byId = new Map(found.map((b) => [String(b._id), b]));
+    const related = ids
+      .map((bid) => byId.get(bid))
+      .filter((b) => Boolean(b)) as Blog[];
+
+    const result = { related };
+    await this.cache.set(relatedKey(id), result, AI_RESULT_TTL_SECONDS);
+    return { ...result, cached: false };
+  }
+
+  /** Embed every existing blog — run once to backfill older posts. */
+  async reindexAll(): Promise<{ indexed: number }> {
+    const blogs = await this.blogModel.find();
+    let indexed = 0;
+    for (const blog of blogs) {
+      await this.indexBlog(blog);
+      indexed++;
+    }
+    return { indexed };
+  }
 
   async summarize(id: string): Promise<{ summary: string; cached: boolean }> {
     const cached = await this.cache.get<{ summary: string }>(summaryKey(id));
@@ -104,6 +180,7 @@ export class BlogsService {
     }
     const res = await this.blogModel.create(blog);
     await this.cache.del(BLOGS_LIST_KEY);
+    await this.indexBlog(res);
     return res;
   }
 
@@ -144,8 +221,12 @@ export class BlogsService {
         blogKey(id),
         summaryKey(id),
         autoTagKey(id),
+        relatedKey(id),
         BLOGS_LIST_KEY,
       );
+      // content changed → re-embed so recommendations stay accurate
+      const fresh = await this.blogModel.findById(id);
+      if (fresh) await this.indexBlog(fresh);
       return updated;
     }
     throw new NotFoundException('UserId not found.');
@@ -160,8 +241,10 @@ export class BlogsService {
         blogKey(id),
         summaryKey(id),
         autoTagKey(id),
+        relatedKey(id),
         BLOGS_LIST_KEY,
       );
+      await this.qdrant.remove(id);
       return deleted;
     }
     throw new NotFoundException('UserId not found.');

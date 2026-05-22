@@ -20,6 +20,7 @@ import { loggerConfig } from './logger.config';
 import { MailModule } from './mail/mail.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { ReactionsModule } from './reactions/reactions.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ReactionsModule } from './reactions/reactions.module';
     MetricsModule,
     AdminModule,
     AiModule,
+    SearchModule,
   ],
 
   controllers: [AppController],

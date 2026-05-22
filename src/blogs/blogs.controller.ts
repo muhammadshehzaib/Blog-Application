@@ -81,6 +81,20 @@ export class BlogsController {
     return this.blogsService.find({ ...blog, userId: userId });
   }
 
+  @Post('reindex')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  async reindexBlogs(): Promise<{ indexed: number }> {
+    return this.blogsService.reindexAll();
+  }
+
+  @Get(':id/related')
+  async relatedBlogs(
+    @Param('id') id: string,
+  ): Promise<{ related: Blog[]; cached: boolean }> {
+    return this.blogsService.related(id);
+  }
+
   @Get(':id')
   async getBlogs(
     @Param('id')

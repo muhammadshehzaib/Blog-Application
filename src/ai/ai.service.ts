@@ -8,10 +8,14 @@ export class AiService {
   private readonly model: string;
   private readonly configured: boolean;
 
+  private readonly embeddingModel: string;
+
   constructor() {
     const apiKey = process.env.AI_API_KEY;
     this.configured = Boolean(apiKey);
     this.model = process.env.AI_MODEL ?? 'gemini-2.0-flash';
+    this.embeddingModel =
+      process.env.AI_EMBEDDING_MODEL ?? 'text-embedding-004';
 
     this.client = new OpenAI({
       apiKey: apiKey ?? 'not-configured',
@@ -19,6 +23,29 @@ export class AiService {
         process.env.AI_BASE_URL ??
         'https://generativelanguage.googleapis.com/v1beta/openai/',
     });
+  }
+
+  /**
+   * Turn text into an embedding vector — its "coordinate on the map of
+   * meaning". Same OpenAI-compatible client, just a different model.
+   */
+  async embed(text: string): Promise<number[]> {
+    if (!this.configured) {
+      throw new ServiceUnavailableException(
+        'AI provider not configured. Set AI_API_KEY, AI_BASE_URL.',
+      );
+    }
+
+    try {
+      const res = await this.client.embeddings.create({
+        model: this.embeddingModel,
+        input: text.slice(0, 8000),
+      });
+      return res.data[0]?.embedding ?? [];
+    } catch (err) {
+      this.logger.error(`Embedding call failed: ${(err as Error).message}`);
+      throw new ServiceUnavailableException('Embedding request failed.');
+    }
   }
 
   /**
