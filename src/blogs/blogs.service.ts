@@ -124,7 +124,9 @@ export class BlogsService {
    * each blog gets up to REINDEX_MAX_ATTEMPTS tries with linear backoff, and
    * there is a short pause between blogs. Returns an honest tally.
    */
-  async reindexAll(): Promise<{
+  async reindexAll(
+    onProgress?: (done: number, total: number) => void,
+  ): Promise<{
     total: number;
     indexed: number;
     failed: number;
@@ -133,7 +135,8 @@ export class BlogsService {
     let indexed = 0;
     let failed = 0;
 
-    for (const blog of blogs) {
+    for (let i = 0; i < blogs.length; i++) {
+      const blog = blogs[i];
       let ok = false;
       for (let attempt = 1; attempt <= REINDEX_MAX_ATTEMPTS; attempt++) {
         try {
@@ -147,6 +150,7 @@ export class BlogsService {
         }
       }
       ok ? indexed++ : failed++;
+      onProgress?.(i + 1, blogs.length);
       await this.sleep(REINDEX_DELAY_MS);
     }
 

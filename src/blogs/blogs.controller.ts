@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -12,8 +13,10 @@ import {
 } from '@nestjs/common';
 // import { AuthGuard } from '../auth/auth.guard';
 import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Queue } from 'bullmq';
 import { Role } from '../auth/schemas/auth.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { RolesGuard } from '../role.guard';
@@ -21,12 +24,14 @@ import { Roles } from '../roles';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
+import { REINDEX_JOB, REINDEX_QUEUE } from './reindex.processor';
 import { Blog, Status } from './schemas/blogs.schema';
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private blogsService: BlogsService,
     private cloudinary: CloudinaryService,
+    @InjectQueue(REINDEX_QUEUE) private reindexQueue: Queue,
   ) {}
 
   @Get('admin')
@@ -84,12 +89,42 @@ export class BlogsController {
   @Post('reindex')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
-  async reindexBlogs(): Promise<{
-    total: number;
-    indexed: number;
-    failed: number;
+  async reindexBlogs(): Promise<{ jobId: string; status: string }> {
+    // If a reindex is already queued or running, return that one.
+    const running = await this.reindexQueue.getJobs(['active', 'waiting']);
+    if (running.length > 0) {
+      return { jobId: String(running[0].id), status: 'already-running' };
+    }
+    const job = await this.reindexQueue.add(
+      REINDEX_JOB,
+      {},
+      {
+        removeOnComplete: { age: 3600 },
+        removeOnFail: { age: 3600 },
+      },
+    );
+    return { jobId: String(job.id), status: 'queued' };
+  }
+
+  @Get('reindex/:jobId')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  async reindexStatus(@Param('jobId') jobId: string): Promise<{
+    jobId: string;
+    state: string;
+    progress: number;
+    result: unknown;
   }> {
-    return this.blogsService.reindexAll();
+    const job = await this.reindexQueue.getJob(jobId);
+    if (!job) {
+      throw new NotFoundException('Reindex job not found');
+    }
+    return {
+      jobId,
+      state: await job.getState(),
+      progress: typeof job.progress === 'number' ? job.progress : 0,
+      result: job.returnvalue ?? null,
+    };
   }
 
   @Get(':id/related')
