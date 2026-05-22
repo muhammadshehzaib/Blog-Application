@@ -89,6 +89,22 @@ export class BlogsController {
     return this.blogsService.findById(id);
   }
 
+  @Post(':id/summarize')
+  @UseGuards(AuthGuard('jwt'))
+  async summarizeBlog(
+    @Param('id') id: string,
+  ): Promise<{ summary: string; cached: boolean }> {
+    return this.blogsService.summarize(id);
+  }
+
+  @Post(':id/auto-tag')
+  @UseGuards(AuthGuard('jwt'))
+  async autoTagBlog(
+    @Param('id') id: string,
+  ): Promise<{ suggestions: string[]; cached: boolean }> {
+    return this.blogsService.autoTag(id);
+  }
+
   @Put(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Writer)

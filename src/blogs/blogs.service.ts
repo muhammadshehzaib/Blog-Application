@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { AiService } from '../ai/ai.service';
 import { CacheService } from '../cache/cache.service';
 import { BlogsCategories } from '../category/schemas/category.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -14,8 +15,11 @@ import { Blog, BlogDocument, Status } from './schemas/blogs.schema';
 
 const BLOG_TTL_SECONDS = 5 * 60;
 const BLOGS_LIST_TTL_SECONDS = 60;
+const AI_RESULT_TTL_SECONDS = 24 * 60 * 60;
 
 const blogKey = (id: string) => `blog:${id}`;
+const summaryKey = (id: string) => `blog:summary:${id}`;
+const autoTagKey = (id: string) => `blog:autotag:${id}`;
 const BLOGS_LIST_KEY = 'blogs:list:all';
 
 @Injectable()
@@ -27,7 +31,51 @@ export class BlogsService {
     private categoryModel: Model<BlogsCategories>,
     private cloudinary: CloudinaryService,
     private cache: CacheService,
+    private ai: AiService,
   ) {}
+
+  async summarize(id: string): Promise<{ summary: string; cached: boolean }> {
+    const cached = await this.cache.get<{ summary: string }>(summaryKey(id));
+    if (cached) return { ...cached, cached: true };
+
+    const blog = await this.blogModel.findById(id);
+    if (!blog) {
+      throw new NotFoundException('Blog not found.');
+    }
+
+    const summary = await this.ai.summarize(blog.title, blog.content);
+    const result = { summary };
+    await this.cache.set(summaryKey(id), result, AI_RESULT_TTL_SECONDS);
+    return { ...result, cached: false };
+  }
+
+  async autoTag(
+    id: string,
+  ): Promise<{ suggestions: string[]; cached: boolean }> {
+    const cached = await this.cache.get<{ suggestions: string[] }>(
+      autoTagKey(id),
+    );
+    if (cached) return { ...cached, cached: true };
+
+    const blog = await this.blogModel.findById(id);
+    if (!blog) {
+      throw new NotFoundException('Blog not found.');
+    }
+
+    const categories = await this.categoryModel.find();
+    const names = categories
+      .map((c) => (c as any).category)
+      .filter(Boolean);
+
+    const suggestions = await this.ai.suggestTags(
+      blog.title,
+      blog.content,
+      names,
+    );
+    const result = { suggestions };
+    await this.cache.set(autoTagKey(id), result, AI_RESULT_TTL_SECONDS);
+    return { ...result, cached: false };
+  }
 
   async findAll(): Promise<Blog[]> {
     const cached = await this.cache.get<Blog[]>(BLOGS_LIST_KEY);
@@ -92,7 +140,12 @@ export class BlogsService {
     const userId = blogId.userId.toString();
     if (userId === req) {
       const updated = await this.blogModel.findByIdAndUpdate(id, blog);
-      await this.cache.del(blogKey(id), BLOGS_LIST_KEY);
+      await this.cache.del(
+        blogKey(id),
+        summaryKey(id),
+        autoTagKey(id),
+        BLOGS_LIST_KEY,
+      );
       return updated;
     }
     throw new NotFoundException('UserId not found.');
@@ -103,7 +156,12 @@ export class BlogsService {
     const userId = blogId.userId.toString();
     if (userId === req) {
       const deleted = await this.blogModel.findByIdAndDelete(id);
-      await this.cache.del(blogKey(id), BLOGS_LIST_KEY);
+      await this.cache.del(
+        blogKey(id),
+        summaryKey(id),
+        autoTagKey(id),
+        BLOGS_LIST_KEY,
+      );
       return deleted;
     }
     throw new NotFoundException('UserId not found.');

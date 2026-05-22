@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AdminModule } from './admin/admin.module';
+import { AiModule } from './ai/ai.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -49,6 +50,7 @@ import { ReactionsModule } from './reactions/reactions.module';
     HealthModule,
     MetricsModule,
     AdminModule,
+    AiModule,
   ],
 
   controllers: [AppController],
