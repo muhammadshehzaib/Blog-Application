@@ -84,7 +84,11 @@ export class BlogsController {
   @Post('reindex')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
-  async reindexBlogs(): Promise<{ indexed: number }> {
+  async reindexBlogs(): Promise<{
+    total: number;
+    indexed: number;
+    failed: number;
+  }> {
     return this.blogsService.reindexAll();
   }
 

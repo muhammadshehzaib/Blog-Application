@@ -18,6 +18,11 @@ const BLOG_TTL_SECONDS = 5 * 60;
 const BLOGS_LIST_TTL_SECONDS = 60;
 const AI_RESULT_TTL_SECONDS = 24 * 60 * 60;
 
+// Reindex tuning — keeps a bulk reindex under provider rate limits.
+const REINDEX_DELAY_MS = 150; // pause between blogs
+const REINDEX_MAX_ATTEMPTS = 3; // tries per blog before giving up
+const REINDEX_BACKOFF_MS = 1500; // base wait between retries (×attempt)
+
 const blogKey = (id: string) => `blog:${id}`;
 const summaryKey = (id: string) => `blog:summary:${id}`;
 const autoTagKey = (id: string) => `blog:autotag:${id}`;
@@ -41,19 +46,32 @@ export class BlogsService {
     return `${blog.title}\n\n${blog.content}`;
   }
 
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   /**
-   * Embed a blog and store its vector in Qdrant. Non-fatal: if embedding
-   * or Qdrant fails, the blog still exists — it just won't appear in
+   * Embed a blog and store its vector in Qdrant.
+   * Returns true on success. May throw — callers decide how to handle it.
+   */
+  private async embedAndStore(blog: BlogDocument): Promise<boolean> {
+    const vector = await this.ai.embed(this.blogText(blog));
+    if (vector.length === 0) return false;
+    await this.qdrant.upsert(String(blog._id), vector, {
+      blogId: String(blog._id),
+      title: blog.title,
+    });
+    return true;
+  }
+
+  /**
+   * Fire-and-forget indexing for blog writes. Non-fatal: if embedding or
+   * Qdrant fails, the blog still exists — it just won't appear in
    * recommendations until the next reindex.
    */
   private async indexBlog(blog: BlogDocument): Promise<void> {
     try {
-      const vector = await this.ai.embed(this.blogText(blog));
-      if (vector.length === 0) return;
-      await this.qdrant.upsert(String(blog._id), vector, {
-        blogId: String(blog._id),
-        title: blog.title,
-      });
+      await this.embedAndStore(blog);
     } catch {
       /* swallow — indexing failure must not break blog writes */
     }
@@ -99,15 +117,40 @@ export class BlogsService {
     return { ...result, cached: false };
   }
 
-  /** Embed every existing blog — run once to backfill older posts. */
-  async reindexAll(): Promise<{ indexed: number }> {
+  /**
+   * Embed every existing blog into Qdrant — run once to backfill older posts.
+   *
+   * Throttled and retry-aware so a bulk run survives provider rate limits:
+   * each blog gets up to REINDEX_MAX_ATTEMPTS tries with linear backoff, and
+   * there is a short pause between blogs. Returns an honest tally.
+   */
+  async reindexAll(): Promise<{
+    total: number;
+    indexed: number;
+    failed: number;
+  }> {
     const blogs = await this.blogModel.find();
     let indexed = 0;
+    let failed = 0;
+
     for (const blog of blogs) {
-      await this.indexBlog(blog);
-      indexed++;
+      let ok = false;
+      for (let attempt = 1; attempt <= REINDEX_MAX_ATTEMPTS; attempt++) {
+        try {
+          ok = await this.embedAndStore(blog);
+          if (ok) break;
+        } catch {
+          /* fall through to retry */
+        }
+        if (attempt < REINDEX_MAX_ATTEMPTS) {
+          await this.sleep(REINDEX_BACKOFF_MS * attempt);
+        }
+      }
+      ok ? indexed++ : failed++;
+      await this.sleep(REINDEX_DELAY_MS);
     }
-    return { indexed };
+
+    return { total: blogs.length, indexed, failed };
   }
 
   async summarize(id: string): Promise<{ summary: string; cached: boolean }> {
