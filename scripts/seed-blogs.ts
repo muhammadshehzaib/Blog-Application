@@ -1,5 +1,5 @@
 /**
- * Seed script — generates 2000 topical blog posts.
+ * Seed script, generates 2000 topical blog posts.
  *
  * Run with:  npm run seed
  *
@@ -54,7 +54,7 @@ const TOPICS: Topic[] = [
     name: 'JavaScript',
     category: 'Programming Languages',
     blurb:
-      'the language of the web — single-threaded, event-driven, and everywhere',
+      'the language of the web, single-threaded, event-driven, and everywhere',
     sections: [
       {
         h: 'The event loop',
@@ -89,7 +89,7 @@ const TOPICS: Topic[] = [
     sections: [
       {
         h: 'Why types matter',
-        p: 'TypeScript adds a static type layer that disappears at compile time. It catches whole classes of bugs — undefined access, wrong argument shapes, typos — before the code ever runs. On a large codebase the type system is documentation that can never go stale.',
+        p: 'TypeScript adds a static type layer that disappears at compile time. It catches whole classes of bugs, undefined access, wrong argument shapes, typos, before the code ever runs. On a large codebase the type system is documentation that can never go stale.',
       },
       {
         h: 'Structural typing',
@@ -151,7 +151,7 @@ const TOPICS: Topic[] = [
     sections: [
       {
         h: 'Simplicity by design',
-        p: 'Go deliberately leaves out features — no inheritance, no generics for years, no exceptions. The payoff is that almost any Go codebase reads the same way. Teams onboard quickly because there is little dialect to learn.',
+        p: 'Go deliberately leaves out features, no inheritance, no generics for years, no exceptions. The payoff is that almost any Go codebase reads the same way. Teams onboard quickly because there is little dialect to learn.',
       },
       {
         h: 'Goroutines and channels',
@@ -171,7 +171,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Interfaces',
-        p: 'Go interfaces are satisfied implicitly — a type fits an interface just by having the right methods. This keeps packages decoupled. Small, focused interfaces are the idiomatic way to design Go APIs.',
+        p: 'Go interfaces are satisfied implicitly, a type fits an interface just by having the right methods. This keeps packages decoupled. Small, focused interfaces are the idiomatic way to design Go APIs.',
       },
     ],
   },
@@ -202,7 +202,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'When Rust is worth it',
-        p: 'Rust pays off where correctness and performance both matter — systems software, game engines, WebAssembly, infrastructure. For a simple CRUD service the learning curve may not be worth it. Choose it deliberately.',
+        p: 'Rust pays off where correctness and performance both matter, systems software, game engines, WebAssembly, infrastructure. For a simple CRUD service the learning curve may not be worth it. Choose it deliberately.',
       },
     ],
   },
@@ -279,7 +279,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'State and re-renders',
-        p: 'When state changes, React re-renders the component and its children. Knowing what triggers a render — and what does not — is the key to a fast app. Most performance problems are unnecessary renders.',
+        p: 'When state changes, React re-renders the component and its children. Knowing what triggers a render, and what does not, is the key to a fast app. Most performance problems are unnecessary renders.',
       },
       {
         h: 'Hooks',
@@ -318,7 +318,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Server actions',
-        p: 'Server actions let you run server code from a form or event without writing a separate API route. They simplify mutations significantly. Treat them as real endpoints — validate and authorise inside them.',
+        p: 'Server actions let you run server code from a form or event without writing a separate API route. They simplify mutations significantly. Treat them as real endpoints, validate and authorise inside them.',
       },
       {
         h: 'Image and font optimisation',
@@ -368,7 +368,7 @@ const TOPICS: Topic[] = [
     sections: [
       {
         h: 'Middleware',
-        p: 'Express is built around middleware — functions that run in order on every request. Authentication, logging, parsing and error handling all slot into this pipeline. The mental model is a chain of small responsibilities.',
+        p: 'Express is built around middleware, functions that run in order on every request. Authentication, logging, parsing and error handling all slot into this pipeline. The mental model is a chain of small responsibilities.',
       },
       {
         h: 'Routing',
@@ -376,7 +376,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Minimal by design',
-        p: 'Express gives you routing and middleware and little else. You assemble the rest — validation, structure, ORM — yourself. That freedom is powerful but puts architecture decisions on you.',
+        p: 'Express gives you routing and middleware and little else. You assemble the rest, validation, structure, ORM, yourself. That freedom is powerful but puts architecture decisions on you.',
       },
       {
         h: 'Error middleware',
@@ -438,7 +438,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'The aggregation pipeline',
-        p: 'The aggregation framework processes documents through stages — match, group, sort, project. It is how you compute analytics and reshape data in the database. Complex reporting belongs here, not in application code.',
+        p: 'The aggregation framework processes documents through stages, match, group, sort, project. It is how you compute analytics and reshape data in the database. Complex reporting belongs here, not in application code.',
       },
       {
         h: 'Embedding vs referencing',
@@ -473,7 +473,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Data structures',
-        p: 'Redis is more than strings — it has hashes, sorted sets, streams and more. Sorted sets power leaderboards and rate limiters elegantly. Choosing the right structure often replaces a lot of application code.',
+        p: 'Redis is more than strings, it has hashes, sorted sets, streams and more. Sorted sets power leaderboards and rate limiters elegantly. Choosing the right structure often replaces a lot of application code.',
       },
       {
         h: 'Persistence options',
@@ -500,7 +500,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Indexing',
-        p: 'Postgres offers B-tree, hash, GIN, GiST and more index types. The right index depends on the query — equality, range, full text, JSON. Reading query plans with EXPLAIN is how you tune them.',
+        p: 'Postgres offers B-tree, hash, GIN, GiST and more index types. The right index depends on the query, equality, range, full text, JSON. Reading query plans with EXPLAIN is how you tune them.',
       },
       {
         h: 'JSON support',
@@ -508,7 +508,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Extensions',
-        p: 'Postgres is extensible — pgvector adds vector search, PostGIS adds geospatial queries. One database can cover needs that would otherwise mean several. The extension ecosystem is a quiet superpower.',
+        p: 'Postgres is extensible, pgvector adds vector search, PostGIS adds geospatial queries. One database can cover needs that would otherwise mean several. The extension ecosystem is a quiet superpower.',
       },
       {
         h: 'Concurrency with MVCC',
@@ -519,7 +519,7 @@ const TOPICS: Topic[] = [
   {
     name: 'The MERN Stack',
     category: 'Full Stack',
-    blurb: 'MongoDB, Express, React and Node — a full JavaScript web stack',
+    blurb: 'MongoDB, Express, React and Node, a full JavaScript web stack',
     sections: [
       {
         h: 'One language end to end',
@@ -531,7 +531,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'The API boundary',
-        p: 'The Express API is the contract between front and back end. Keeping it well-designed — predictable routes, clear errors, validation — keeps the whole stack maintainable. The boundary is where most bugs are caught or created.',
+        p: 'The Express API is the contract between front and back end. Keeping it well-designed, predictable routes, clear errors, validation, keeps the whole stack maintainable. The boundary is where most bugs are caught or created.',
       },
       {
         h: 'Authentication',
@@ -539,7 +539,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Beyond the basics',
-        p: 'Real MERN apps add caching, background jobs, real-time features and observability. The four core letters are a starting point, not the finished architecture. Knowing what to add — and when — is the senior skill.',
+        p: 'Real MERN apps add caching, background jobs, real-time features and observability. The four core letters are a starting point, not the finished architecture. Knowing what to add, and when, is the senior skill.',
       },
       {
         h: 'Deployment',
@@ -570,7 +570,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Asynchronous processing',
-        p: 'Slow or unreliable work — email, image processing, third-party calls — belongs off the request path. A queue and worker decouple it from the user\'s wait. The request returns fast; the work happens reliably in the background.',
+        p: 'Slow or unreliable work, email, image processing, third-party calls, belongs off the request path. A queue and worker decouple it from the user\'s wait. The request returns fast; the work happens reliably in the background.',
       },
       {
         h: 'Single points of failure',
@@ -628,7 +628,7 @@ const TOPICS: Topic[] = [
       },
       {
         h: 'Retries and backoff',
-        p: 'Transient failures — a flaky network, a rate limit — should be retried, ideally with exponential backoff. After a few attempts a failed job moves to a dead-letter set for inspection. This turns flakiness into resilience.',
+        p: 'Transient failures, a flaky network, a rate limit, should be retried, ideally with exponential backoff. After a few attempts a failed job moves to a dead-letter set for inspection. This turns flakiness into resilience.',
       },
       {
         h: 'Delivery guarantees',
@@ -647,7 +647,7 @@ const TOPICS: Topic[] = [
     sections: [
       {
         h: 'Beyond request/response',
-        p: 'Normal HTTP cannot push — the client must ask. WebSockets keep a connection open so the server can send data any time. This is what makes live comments, chat and presence possible.',
+        p: 'Normal HTTP cannot push, the client must ask. WebSockets keep a connection open so the server can send data any time. This is what makes live comments, chat and presence possible.',
       },
       {
         h: 'Stateful connections',
@@ -689,7 +689,7 @@ const ANGLES: Angle[] = [
       'What every developer should know about {name}',
     ],
     intro:
-      'This article takes a careful look at {name} — {blurb}. The goal is not a quick reference but a real mental model you can carry into your own projects.',
+      'This article takes a careful look at {name}, {blurb}. The goal is not a quick reference but a real mental model you can carry into your own projects.',
     outro:
       'Understanding the ideas above turns {name} from something you use into something you reason about. That shift is what separates copying snippets from engineering.',
   },
@@ -701,7 +701,7 @@ const ANGLES: Angle[] = [
       'A gentle introduction to {name}',
     ],
     intro:
-      'If you are new to {name} — {blurb} — this guide walks through the concepts that matter first, in plain language, before any advanced material.',
+      'If you are new to {name}, {blurb}, this guide walks through the concepts that matter first, in plain language, before any advanced material.',
     outro:
       'With these fundamentals in place, the rest of {name} is far easier to learn. Build something small next; the concepts stick when you apply them.',
   },
@@ -725,7 +725,7 @@ const ANGLES: Angle[] = [
       'Where {name} projects go wrong',
     ],
     intro:
-      'Most trouble with {name} is not exotic — it is the same handful of mistakes repeated. Knowing them in advance saves hours of debugging.',
+      'Most trouble with {name} is not exotic, it is the same handful of mistakes repeated. Knowing them in advance saves hours of debugging.',
     outro:
       'Every pitfall above has the same cure: understand the model instead of pattern-matching. {name} rewards developers who learn its sharp edges.',
   },
@@ -757,13 +757,13 @@ const ANGLES: Angle[] = [
 
 const SUBTITLES = [
   '',
-  ' — a practical perspective',
-  ' — lessons from production',
-  ' — what the docs leave out',
-  ' — a 2025 perspective',
-  ' — the parts that matter',
-  ' — beyond the basics',
-  ' — a working developer\'s view',
+  ', a practical perspective',
+  ', lessons from production',
+  ', what the docs leave out',
+  ', a 2025 perspective',
+  ', the parts that matter',
+  ', beyond the basics',
+  ', a working developer\'s view',
 ];
 
 const STATUSES = ['Approved', 'Approved', 'Approved', 'Approved', 'Pending'];
