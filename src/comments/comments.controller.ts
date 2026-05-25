@@ -23,7 +23,7 @@ export class CommentsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Writer)
+  @Roles(Role.Reader, Role.Writer, Role.Admin)
   async createComments(
     @Req() req: any,
     @Body()
@@ -41,7 +41,7 @@ export class CommentsController {
   }
   @Put(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Writer)
+  @Roles(Role.Reader, Role.Writer, Role.Admin)
   async updateComments(
     @Param('id')
     id: string,

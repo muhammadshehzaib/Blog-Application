@@ -11,7 +11,7 @@ export class ReactionsController {
   constructor(private reactionsService: ReactionsService) {}
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.Writer)
+  @Roles(Role.Reader, Role.Writer, Role.Admin)
   async createReaction(
     @Req() req: any,
     @Body()
