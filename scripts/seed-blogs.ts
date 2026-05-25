@@ -826,6 +826,48 @@ async function run() {
   }
   console.log(`→ seed author ready (${author._id})`);
 
+  // 2b. test users (admin / writer / reader) for local testing
+  const testUsers = [
+    {
+      username: 'admin',
+      email: 'admin@example.com',
+      password: 'admin123',
+      role: 'Admin',
+    },
+    {
+      username: 'writer',
+      email: 'writer@example.com',
+      password: 'writer123',
+      role: 'Writer',
+    },
+    {
+      username: 'reader',
+      email: 'reader@example.com',
+      password: 'reader123',
+      role: 'Reader',
+    },
+  ];
+  for (const u of testUsers) {
+    const hashed = await bcrypt.hash(u.password, 10);
+    await AuthModel.updateOne(
+      { username: u.username },
+      {
+        $set: {
+          email: u.email,
+          password: hashed,
+          role: u.role,
+        },
+        $setOnInsert: { tokenVersion: 0 },
+      },
+      { upsert: true },
+    );
+  }
+  console.log(
+    `→ test users ready: ${testUsers
+      .map((u) => `${u.username}/${u.password} (${u.role})`)
+      .join(', ')}`,
+  );
+
   // 3. wipe previous seed
   const removed = await BlogModel.deleteMany({ userId: author._id });
   console.log(`→ removed ${removed.deletedCount} previously seeded posts`);
