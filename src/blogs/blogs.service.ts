@@ -130,13 +130,25 @@ export class BlogsService {
     total: number;
     indexed: number;
     failed: number;
+    skipped: number;
   }> {
     const blogs = await this.blogModel.find();
     let indexed = 0;
     let failed = 0;
+    let skipped = 0;
 
     for (let i = 0; i < blogs.length; i++) {
       const blog = blogs[i];
+
+      // Skip if this blog is already in Qdrant — avoids re-burning quota
+      // on a partial reindex retry.
+      const existing = await this.qdrant.getVector(String(blog._id));
+      if (existing) {
+        skipped++;
+        onProgress?.(i + 1, blogs.length);
+        continue;
+      }
+
       let ok = false;
       for (let attempt = 1; attempt <= REINDEX_MAX_ATTEMPTS; attempt++) {
         try {
@@ -154,7 +166,7 @@ export class BlogsService {
       await this.sleep(REINDEX_DELAY_MS);
     }
 
-    return { total: blogs.length, indexed, failed };
+    return { total: blogs.length, indexed, failed, skipped };
   }
 
   async summarize(id: string): Promise<{ summary: string; cached: boolean }> {

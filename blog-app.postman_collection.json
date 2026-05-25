@@ -30,9 +30,10 @@
               "script": {
                 "exec": [
                   "const res = pm.response.json();",
-                  "if (res.access_token) { pm.collectionVariables.set('token', res.access_token); }",
-                  "else if (res.token) { pm.collectionVariables.set('token', res.token); }",
-                  "if (res.user && res.user._id) { pm.collectionVariables.set('userId', res.user._id); }"
+                  "const tok = res.accessToken || res.access_token || res.token;",
+                  "if (tok) pm.collectionVariables.set('token', tok);",
+                  "if (typeof res.user === 'string') pm.collectionVariables.set('userId', res.user);",
+                  "else if (res.user && res.user._id) pm.collectionVariables.set('userId', res.user._id);"
                 ],
                 "type": "text/javascript"
               }
@@ -57,8 +58,8 @@
               "script": {
                 "exec": [
                   "const res = pm.response.json();",
-                  "if (res.access_token) pm.collectionVariables.set('token', res.access_token);",
-                  "else if (res.token) pm.collectionVariables.set('token', res.token);"
+                  "const tok = res.accessToken || res.access_token || res.token;",
+                  "if (tok) pm.collectionVariables.set('token', tok);"
                 ],
                 "type": "text/javascript"
               }
@@ -83,8 +84,8 @@
               "script": {
                 "exec": [
                   "const res = pm.response.json();",
-                  "if (res.access_token) pm.collectionVariables.set('token', res.access_token);",
-                  "else if (res.token) pm.collectionVariables.set('token', res.token);"
+                  "const tok = res.accessToken || res.access_token || res.token;",
+                  "if (tok) pm.collectionVariables.set('token', tok);"
                 ],
                 "type": "text/javascript"
               }
