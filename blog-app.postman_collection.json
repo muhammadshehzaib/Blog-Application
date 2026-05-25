@@ -1,0 +1,572 @@
+{
+  "info": {
+    "name": "Blog Application API",
+    "description": "Local API for the NestJS blog backend. Set `baseUrl` (default http://localhost:3002) and `token` in the collection variables. Use the Auth → Login request — it auto-saves the JWT into {{token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "8c8b22d6-blog-app-collection"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3002", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "blogId", "value": "", "type": "string" },
+    { "key": "categoryId", "value": "", "type": "string" },
+    { "key": "commentId", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "jobId", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access_token) { pm.collectionVariables.set('token', res.access_token); }",
+                  "else if (res.token) { pm.collectionVariables.set('token', res.token); }",
+                  "if (res.user && res.user._id) { pm.collectionVariables.set('userId', res.user._id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login (writer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access_token) pm.collectionVariables.set('token', res.access_token);",
+                  "else if (res.token) pm.collectionVariables.set('token', res.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"writer\",\n  \"password\": \"writer123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login (reader)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access_token) pm.collectionVariables.set('token', res.access_token);",
+                  "else if (res.token) pm.collectionVariables.set('token', res.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"reader\",\n  \"password\": \"reader123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"new-user\",\n  \"email\": \"new-user@example.com\",\n  \"password\": \"changeme123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Generate OTP",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"reader@example.com\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/generateOtp", "host": ["{{baseUrl}}"], "path": ["auth", "generateOtp"] }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "PATCH",
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verifyOtp?code=123456",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verifyOtp"],
+              "query": [{ "key": "code", "value": "123456" }]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"reader@example.com\",\n  \"password\": \"newpass123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/changePassword", "host": ["{{baseUrl}}"], "path": ["auth", "changePassword"] }
+          }
+        },
+        {
+          "name": "List users (admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/users", "host": ["{{baseUrl}}"], "path": ["auth", "users"] }
+          }
+        },
+        {
+          "name": "Update user role (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Writer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/users/{{userId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "users", "{{userId}}", "role"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blogs",
+      "item": [
+        {
+          "name": "List blogs (paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.items && res.items[0]) pm.collectionVariables.set('blogId', res.items[0]._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/blogs?page=1&limit=12&category=&q=",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "12" },
+                { "key": "category", "value": "" },
+                { "key": "q", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get all blogs (admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/blogs/admin", "host": ["{{baseUrl}}"], "path": ["blogs", "admin"] }
+          }
+        },
+        {
+          "name": "Get my blogs (writer)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/blogs/userblogs", "host": ["{{baseUrl}}"], "path": ["blogs", "userblogs"] }
+          }
+        },
+        {
+          "name": "Get blog by id",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{blogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "{{blogId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create blog (multipart, writer)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "My new blog", "type": "text" },
+                { "key": "content", "value": "This is the body of the blog post.", "type": "text" },
+                { "key": "category", "value": "{{categoryId}}", "type": "text" },
+                { "key": "status", "value": "Pending", "type": "text" },
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/blogs", "host": ["{{baseUrl}}"], "path": ["blogs"] }
+          }
+        },
+        {
+          "name": "Update blog",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated title\",\n  \"content\": \"Updated body.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{blogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "{{blogId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete blog",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{blogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "{{blogId}}"]
+            }
+          }
+        },
+        {
+          "name": "Approve blog (admin)",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/blogs/approved/{{blogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "approved", "{{blogId}}"]
+            }
+          }
+        },
+        {
+          "name": "Disapprove blog (admin)",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/blogs/disapproved/{{blogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "disapproved", "{{blogId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blogs — AI",
+      "item": [
+        {
+          "name": "Summarize blog",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{blogId}}/summarize",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "{{blogId}}", "summarize"]
+            }
+          }
+        },
+        {
+          "name": "Auto-tag blog",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{blogId}}/auto-tag",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "{{blogId}}", "auto-tag"]
+            }
+          }
+        },
+        {
+          "name": "Related blogs (semantic)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{blogId}}/related",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "{{blogId}}", "related"]
+            }
+          }
+        },
+        {
+          "name": "Reindex all (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.jobId) pm.collectionVariables.set('jobId', res.jobId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/blogs/reindex", "host": ["{{baseUrl}}"], "path": ["blogs", "reindex"] }
+          }
+        },
+        {
+          "name": "Reindex job status (admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/blogs/reindex/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogs", "reindex", "{{jobId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (Array.isArray(res) && res[0]) pm.collectionVariables.set('categoryId', res[0]._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/blogscategories", "host": ["{{baseUrl}}"], "path": ["blogscategories"] }
+          }
+        },
+        {
+          "name": "Get category by id",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/blogscategories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogscategories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create category (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"New Section\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/blogscategories", "host": ["{{baseUrl}}"], "path": ["blogscategories"] }
+          }
+        },
+        {
+          "name": "Update category (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Renamed Section\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/blogscategories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogscategories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete category (admin)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/blogscategories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blogscategories", "{{categoryId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "List comments",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/comments", "host": ["{{baseUrl}}"], "path": ["comments"] }
+          }
+        },
+        {
+          "name": "Create comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res._id) pm.collectionVariables.set('commentId', res._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Great post!\",\n  \"blog\": \"{{blogId}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/comments", "host": ["{{baseUrl}}"], "path": ["comments"] }
+          }
+        },
+        {
+          "name": "Edit comment",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Edited comment.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comments/{{commentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["comments", "{{commentId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reactions",
+      "item": [
+        {
+          "name": "Create / toggle reaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reactions\": \"like\",\n  \"blogId\": \"{{blogId}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/reactions", "host": ["{{baseUrl}}"], "path": ["reactions"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/profile", "host": ["{{baseUrl}}"], "path": ["profile"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ops",
+      "item": [
+        {
+          "name": "Health (liveness)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/health/live", "host": ["{{baseUrl}}"], "path": ["health", "live"] }
+          }
+        },
+        {
+          "name": "Health (readiness)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/health/ready", "host": ["{{baseUrl}}"], "path": ["health", "ready"] }
+          }
+        },
+        {
+          "name": "Prometheus metrics",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/metrics", "host": ["{{baseUrl}}"], "path": ["metrics"] }
+          }
+        },
+        {
+          "name": "Admin dashboard (admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard"] }
+          }
+        }
+      ]
+    }
+  ]
+}
