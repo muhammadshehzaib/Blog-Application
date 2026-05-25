@@ -214,6 +214,66 @@ export class BlogsService {
     return blog;
   }
 
+  async findPaginated(opts: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    q?: string;
+  }): Promise<{
+    items: Blog[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const page = Math.max(1, Number(opts.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(opts.limit) || 12));
+    const skip = (page - 1) * limit;
+    const category = opts.category?.trim() || '';
+    const q = opts.q?.trim() || '';
+
+    const cacheKey = `blogs:list:p${page}:l${limit}:c${category || '*'}:q${q || '*'}`;
+    const cached = await this.cache.get<any>(cacheKey);
+    if (cached) return cached;
+
+    const filter: Record<string, any> = {};
+
+    if (category) {
+      const cat = await this.categoryModel.findOne({ category });
+      if (!cat) {
+        const empty = { items: [], total: 0, page, limit, totalPages: 0 };
+        await this.cache.set(cacheKey, empty, BLOGS_LIST_TTL_SECONDS);
+        return empty;
+      }
+      filter.category = cat._id;
+    }
+
+    if (q) {
+      const safe = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { title: { $regex: safe, $options: 'i' } },
+        { content: { $regex: safe, $options: 'i' } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      this.blogModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('category')
+        .populate('comments')
+        .populate('reactions'),
+      this.blogModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const payload = { items, total, page, limit, totalPages };
+    await this.cache.set(cacheKey, payload, BLOGS_LIST_TTL_SECONDS);
+    return payload;
+  }
+
   async create(
     blog: CreateBlogDto & { image: string; userId: string },
   ): Promise<Blog> {

@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -41,8 +44,13 @@ export class BlogsController {
   }
 
   @Get()
-  async getAllBlogs(): Promise<any> {
-    return this.blogsService.findAll();
+  async getAllBlogs(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
+    @Query('category') category?: string,
+    @Query('q') q?: string,
+  ): Promise<any> {
+    return this.blogsService.findPaginated({ page, limit, category, q });
   }
 
   @Post()
