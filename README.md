@@ -1,9 +1,33 @@
-# Blogs App — Backend
+# Writer's Heaven — Backend (Blogs App API)
 
 A production-shaped blogging platform API built with **NestJS**. It started as a
 CRUD blog and grew into a system that demonstrates real backend engineering:
 real-time updates, caching, background jobs, AI features, semantic search and a
 full observability stack.
+
+<p align="center">
+  <a href="https://REPLACE-WITH-YOUR-VPS-URL"><img src="https://img.shields.io/badge/Live%20API-Visit-2ea44f?style=for-the-badge&logo=railway&logoColor=white" alt="Live API"></a>
+  <a href="https://github.com/muhammadshehzaib/Blog-Application"><img src="https://img.shields.io/badge/Backend-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Backend repo"></a>
+  <a href="https://github.com/muhammadshehzaib/Blog-Application-Frontend"><img src="https://img.shields.io/badge/Frontend-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Frontend repo"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/NestJS-E0234E?logo=nestjs&logoColor=white" alt="NestJS">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white" alt="MongoDB">
+  <img src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white" alt="Redis">
+  <img src="https://img.shields.io/badge/Qdrant-FF4F64?logo=qdrant&logoColor=white" alt="Qdrant">
+  <img src="https://img.shields.io/badge/OpenTelemetry-425CC7?logo=opentelemetry&logoColor=white" alt="OpenTelemetry">
+</p>
+
+> 📸 **Add a screenshot / architecture diagram here.** Drop an image at `docs/screenshot.png` and uncomment the block below.
+<!--
+<p align="center">
+  <img src="docs/screenshot.png" alt="Writer's Heaven backend" width="850">
+</p>
+-->
+
+**Companion frontend:** [Writer's Heaven — Frontend](https://github.com/muhammadshehzaib/Blog-Application-Frontend) (Next.js 14)
 
 ---
 
