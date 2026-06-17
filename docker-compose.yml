@@ -1,0 +1,88 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: blog-redis
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: blog-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blog-backend
+    # Bound to localhost; nginx on the host proxies blogapi.shehzaib.com to it.
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-3002}:3002"
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DBURI: ${DBURI:?DBURI (MongoDB Atlas connection string) is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_SECRET_KEY: ${JWT_SECRET:-}
+      # CORS: the public origin the FRONTEND is served from
+      DEPLOYMENTLINK: ${DEPLOYMENTLINK:?DEPLOYMENTLINK (public frontend URL) is required}
+      LOCALHOST: ${LOCALHOST:-}
+      # Cloudinary (required — backend won't boot without these)
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:?required}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:?required}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:?required}
+      # Email (OTP) — optional
+      EMAIL: ${EMAIL:-}
+      PASSWORD: ${PASSWORD:-}
+      # AI provider (Gemini/OpenAI-compatible).
+      # AI_API_KEY is REQUIRED: AiService constructs an OpenAI client at boot and
+      # throws on an empty key (the backend won't start without it).
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_API_KEY: ${AI_API_KEY:?AI_API_KEY is required (backend constructs the AI client at boot)}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-}
+      # Internal services (container DNS names)
+      REDIS_URL: redis://redis:6379
+      QDRANT_URL: http://qdrant:6333
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      # The frontend repo must be cloned alongside this one (sibling directory)
+      context: ../Blog-Application-Frontend
+      dockerfile: Dockerfile
+      args:
+        # All three point at the PUBLIC BACKEND URL (baked into the browser bundle)
+        DEPLOYMENTLINK: ${FRONTEND_API_URL:?set FRONTEND_API_URL to the public backend URL}
+        NEXT_PUBLIC_API_URL: ${FRONTEND_API_URL}
+        LOCALHOST: ${FRONTEND_API_URL}
+    container_name: blog-frontend
+    # Bound to localhost; nginx on the host proxies blog.shehzaib.com to it.
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-8082}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  qdrant_data:
