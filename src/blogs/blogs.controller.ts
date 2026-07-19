@@ -39,8 +39,16 @@ export class BlogsController {
 
   @Get('admin')
   @UseGuards(AuthGuard('jwt'))
-  async getAllAdminBlogs(): Promise<Blog[]> {
-    return this.blogsService.findAll();
+  async getAllAdminBlogs(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(15), ParseIntPipe) limit: number,
+    @Query('status') status?: string,
+  ): Promise<{
+    items: Blog[];
+    total: number;
+    counts: { approved: number; rejected: number; pending: number };
+  }> {
+    return this.blogsService.findAdminPaginated({ page, limit, status });
   }
 
   @Get()

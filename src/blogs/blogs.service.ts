@@ -226,6 +226,56 @@ export class BlogsService {
     return blog;
   }
 
+  async findAdminPaginated(opts: {
+    page: number;
+    limit: number;
+    status?: string;
+  }): Promise<{
+    items: Blog[];
+    total: number;
+    counts: { approved: number; rejected: number; pending: number };
+  }> {
+    const page = Math.max(1, opts.page);
+    const limit = Math.min(100, Math.max(1, opts.limit));
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, any> = {};
+    if (opts.status && opts.status !== 'all') {
+      if (opts.status === 'approved') {
+        filter.status = Status.Approved;
+      } else if (opts.status === 'rejected') {
+        filter.status = Status.Disapproved;
+      } else if (opts.status === 'pending') {
+        filter.status = Status.Pending;
+      }
+    }
+
+    const [items, total, approvedCount, rejectedCount, pendingCount] = await Promise.all([
+      this.blogModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('category')
+        .populate('comments')
+        .populate('reactions'),
+      this.blogModel.countDocuments(filter),
+      this.blogModel.countDocuments({ status: Status.Approved }),
+      this.blogModel.countDocuments({ status: Status.Disapproved }),
+      this.blogModel.countDocuments({ status: Status.Pending }),
+    ]);
+
+    return {
+      items,
+      total,
+      counts: {
+        approved: approvedCount,
+        rejected: rejectedCount,
+        pending: pendingCount,
+      },
+    };
+  }
+
   async findPaginated(opts: {
     page?: number;
     limit?: number;
