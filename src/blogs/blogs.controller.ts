@@ -196,8 +196,7 @@ export class BlogsController {
     @Param('id')
     id: string,
   ): Promise<Blog> {
-    const userId = req.user._id.toString();
-    return this.blogsService.deleteById(id, userId);
+    throw new NotFoundException('Delete operation is disabled.');
   }
 
   @Put('approved/:id')
@@ -219,6 +218,6 @@ export class BlogsController {
     id: string,
     status: Status,
   ): Promise<Blog> {
-    return this.blogsService.findIdAndDisapproved(id, status);
+    throw new NotFoundException('Rejection operation is disabled.');
   }
 }
