@@ -6,7 +6,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package.json ./
-RUN npm install
+RUN NODE_OPTIONS="--dns-result-order=ipv4first" npm install --no-audit --no-fund --prefer-offline
 
 COPY . .
 RUN npm run build
