@@ -9,7 +9,7 @@ import { Auth, Role } from './schemas/auth.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { LoginUserDto } from './dto/login.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { MailService } from '../mail/mail.service';
 import { CreateUserDto } from './dto/auth.dto';
