@@ -8,8 +8,8 @@ WORKDIR /app
 # bcrypt is a native addon — needs a build toolchain on Alpine to compile
 RUN apk add --no-cache python3 make g++
 
-COPY package*.json ./
-RUN NODE_ENV=development npm install
+COPY package.json ./
+RUN npm install
 
 COPY . .
 RUN npm run build
