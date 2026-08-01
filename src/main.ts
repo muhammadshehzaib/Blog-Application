@@ -34,8 +34,15 @@ async function bootstrap() {
 
   const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379';
   const redisAdapter = new RedisIoAdapter(app);
-  await redisAdapter.connectToRedis(redisUrl);
-  app.useWebSocketAdapter(redisAdapter);
+  try {
+    await redisAdapter.connectToRedis(redisUrl);
+    app.useWebSocketAdapter(redisAdapter);
+    console.log('Redis WebSocket adapter configured successfully.');
+  } catch (err) {
+    console.warn(
+      `Could not connect to Redis: ${(err as Error).message}. Falling back to default WebSocket adapter.`,
+    );
+  }
 
   await app.listen(process.env.PORT ?? 3002);
 }
